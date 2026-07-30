@@ -4,79 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Management System</title>
+    <link rel="stylesheet" href="sms.2.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Student Management System</h1>
-        </header>
 
-        <section class="student-form">
+<div class="container">
+
+    <aside class="sidebar">
+
+        <h2>SMS</h2>
+
+        <button id="dashboardBtn">Dashboard</button>
+
+        <button id="addStudentBtn">Add Student</button>
+
+        <button id="updateStudentBtn">Update Student</button>
+
+        <button id="searchStudentBtn">Search Student</button>
+
+        <button id="deleteStudentBtn">Delete Student</button>
+
+        <button id="studentListBtn">Student List</button>
+
+    </aside>
+
+    <main class="content">
+        <section id="dashboardSection">
+
+            <h1>Student Management System</h1>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Total Students</h3>
+                    <p id="totalStudents">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Total Courses</h3>
+                    <p id="totalCourses">0</p>
+                </div>
+
+            </div>
+
+        </section>
+        <section id="addSection" class="hide">
 
             <h2>Add Student</h2>
 
-            <form id="studentForm">
+            <form id="addForm">
 
-                <div class="input-group">
-                    <label for="studentId">Student ID</label>
-                    <input type="text" id="studentId" placeholder="Enter Student ID">
-                </div>
+                <input type="text" id="studentId" placeholder="Student ID">
 
-                <div class="input-group">
-                    <label for="studentName">Student Name</label>
-                    <input type="text" id="studentName" placeholder="Enter Student Name">
-                </div>
+                <input type="text" id="studentName" placeholder="Student Name">
 
-                <div class="input-group">
-                    <label for="studentAge">Age</label>
-                    <input type="number" id="studentAge" placeholder="Enter Age">
-                </div>
+                <input type="number" id="studentAge" placeholder="Age">
 
-                <div class="input-group">
-                    <label for="studentCourse">Course</label>
-                    <input type="text" id="studentCourse" placeholder="Enter Course">
-                </div>
+                <input type="text" id="studentCourse" placeholder="Course">
 
-                <div class="input-group">
-                    <label for="studentEmail">Email</label>
-                    <input type="email" id="studentEmail" placeholder="Enter Email">
-                </div>
+                <input type="email" id="studentEmail" placeholder="Email">
 
-                <div class="button-group">
-                    <button type="submit" id="addBtn">Add Student</button>
-                    <button type="button" id="updateBtn">Update Student</button>
-                    <button type="reset">Clear</button>
-                </div>
+                <button type="submit">Save Student</button>
 
             </form>
 
         </section>
-        <section class="search-section">
+
+        <section id="updateSection" class="hide">
+
+            <h2>Update Student</h2>
+
+            <input type="text" id="updateId" placeholder="Enter Student ID">
+
+            <button id="findStudent">Find Student</button>
+
+            <form id="updateForm">
+
+                <input type="text" id="updateName" placeholder="Student Name">
+
+                <input type="number" id="updateAge" placeholder="Age">
+
+                <input type="text" id="updateCourse" placeholder="Course">
+
+                <input type="email" id="updateEmail" placeholder="Email">
+
+                <button type="submit">Update Student</button>
+
+            </form>
+
+        </section>
+
+        <section id="searchSection" class="hide">
 
             <h2>Search Student</h2>
 
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Search by Name or ID">
+            <input type="text"
+                   id="searchInput"
+                   placeholder="Search by ID or Name">
+
+            <div id="searchResult"></div>
 
         </section>
 
-        <section class="dashboard">
+        <section id="deleteSection" class="hide">
 
-            <div class="card">
-                <h3>Total Students</h3>
-                <p id="totalStudents">0</p>
-            </div>
+            <h2>Delete Student</h2>
 
-            <div class="card">
-                <h3>Total Courses</h3>
-                <p id="totalCourses">0</p>
-            </div>
+            <input type="text"
+                   id="deleteId"
+                   placeholder="Enter Student ID">
+
+            <button id="deleteBtn">Delete</button>
 
         </section>
-
-        <section class="student-list">
+        <section id="listSection" class="hide">
 
             <h2>Student List</h2>
 
@@ -85,19 +126,22 @@
                 <thead>
 
                     <tr>
+
                         <th>ID</th>
+
                         <th>Name</th>
+
                         <th>Age</th>
+
                         <th>Course</th>
+
                         <th>Email</th>
-                        <th>Actions</th>
+
                     </tr>
 
                 </thead>
 
-                <tbody id="studentTableBody">
-
-                    <!-- JavaScript will add rows here -->
+                <tbody id="studentTable">
 
                 </tbody>
 
@@ -105,7 +149,11 @@
 
         </section>
 
-    </div>
+    </main>
+
+</div>
+
+<script src="sms.3.js"></script>
 
 </body>
 </html>

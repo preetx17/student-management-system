@@ -1,0 +1,309 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#F6F2EC;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:300px;
+
+    background-image:url("nba-ny-jan-24-09-66b3d95cccc8a.avif");
+
+    background-size:cover;
+    background-position:center;
+
+    color:white;
+
+    padding:30px 20px;
+
+    box-shadow:4px 0 15px rgba(0,0,0,.25);
+}
+
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:35px;
+    font-size:28px;
+    letter-spacing:2px;
+}
+
+.sidebar button{
+
+    width:100%;
+    padding:14px;
+    margin-bottom:15px;
+
+    border:none;
+    border-radius:8px;
+
+    background:#8A6546;
+    color:white;
+
+    font-size:16px;
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.sidebar button:hover{
+
+    background:#6B4B35;
+    transform:translateX(8px);
+}
+
+
+
+.content{
+
+    flex:1;
+    padding:35px;
+}
+
+
+
+section{
+
+    background:#FFFDF9;
+
+    padding:30px;
+
+    border-radius:18px;
+
+    box-shadow:0 10px 25px rgba(74,52,38,.12);
+
+    margin-bottom:30px;
+}
+section h1,
+section h2{
+
+    color:#3A281C;
+    margin-bottom:25px;
+}
+
+
+.cards{
+
+    display:flex;
+    gap:25px;
+    flex-wrap:wrap;
+}
+
+.card{
+
+    flex:1;
+    min-width:220px;
+
+    background:linear-gradient(
+        135deg,
+        #E2C8AC,
+        #CDA37D
+    );
+    color:#3A281C;
+
+    border-radius:12px;
+
+    padding:30px;
+
+    text-align:center;
+
+    transition:0.3s;
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 12px 25px rgba(0,0,0,.15);
+}
+
+.card h3{
+
+    margin-bottom:15px;
+    font-size:20px;
+}
+
+.card p{
+
+    font-size:40px;
+    font-weight:bold;
+}
+
+form{
+
+    display:grid;
+    gap:18px;
+}
+
+input{
+
+    width:100%;
+
+    padding:12px 15px;
+
+    border: 1px solid #C9B29A;
+
+    border-radius:8px;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:0.3s;
+}
+
+input:focus{
+
+    border-color:#8A6546;
+
+    box-shadow:0 0 8px rgba(138,101,70,.3);
+}
+
+form button,
+#findStudent,
+#deleteBtn{
+
+    width:200px;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    color:white;
+
+    background:#8A6546;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    transition:0.3s;
+}
+
+form button:hover,
+#findStudent:hover{
+
+    background:#6B4B35;
+}
+
+#deleteBtn{
+
+    background:#9B3D2E;
+    margin-top:15px;
+}
+
+#deleteBtn:hover{
+
+    background:#7D2D21;
+}
+
+
+
+#searchInput{
+
+    width:350px;
+    margin-bottom:20px;
+}
+
+#searchResult{
+
+    margin-top:20px;
+}
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+}
+
+thead{
+
+    background:#6B4B35;
+    color:white;
+}
+
+th{
+
+    padding:15px;
+}
+
+td{
+
+    padding:14px;
+
+    text-align:center;
+
+    border-bottom:1px solid #ddd;
+}
+
+tbody tr:nth-child(even){
+
+    background:#FAF5EF;
+}
+
+tbody tr:hover{
+
+    background:#EFE4D7;
+}
+
+
+.hide{
+
+    display:none;
+}
+
+
+@media(max-width:900px){
+
+.container{
+
+    flex-direction:column;
+}
+
+.sidebar{
+
+    width:100%;
+}
+
+.sidebar button{
+
+    width:48%;
+    margin:5px 1%;
+}
+
+.cards{
+
+    flex-direction:column;
+}
+
+#searchInput{
+
+    width:100%;
+}
+
+form button,
+#findStudent,
+#deleteBtn{
+
+    width:100%;
+}
+
+}
