@@ -1,307 +1,184 @@
-const dashboardBtn = document.getElementById("dashboardBtn");
-const addStudentBtn = document.getElementById("addStudentBtn");
-const updateStudentBtn = document.getElementById("updateStudentBtn");
-const searchStudentBtn = document.getElementById("searchStudentBtn");
-const deleteStudentBtn = document.getElementById("deleteStudentBtn");
-const studentListBtn = document.getElementById("studentListBtn");
 
-const dashboardSection = document.getElementById("dashboardSection");
-const addSection = document.getElementById("addSection");
-const updateSection = document.getElementById("updateSection");
-const searchSection = document.getElementById("searchSection");
-const deleteSection = document.getElementById("deleteSection");
-const listSection = document.getElementById("listSection");
-
-const addForm = document.getElementById("addForm");
+const addForm= document.getElementById("addForm");
+const searchInput= document.getElementById("searchInput");
+const findStudentBtn= document.getElementById("findStudent");
 const updateForm = document.getElementById("updateForm");
+const deleteBtn = document.getElementById("deleteBtn");
+const searchResult = document.getElementById("searchResult");
+
+
 
 let students = [];
-function hideSections(){
 
-    dashboardSection.classList.add("hide");
-    addSection.classList.add("hide");
-    updateSection.classList.add("hide");
-    searchSection.classList.add("hide");
-    deleteSection.classList.add("hide");
-    listSection.classList.add("hide");
+const navButtons = {
+  dashboardBtn:     "dashboardSection",
+  addStudentBtn:    "addSection",
+  updateStudentBtn: "updateSection",
+  searchStudentBtn: "searchSection",
+  deleteStudentBtn: "deleteSection",
+  studentListBtn:   "listSection",
+};
 
+function showSection(sectionId){
+  document.querySelectorAll(".content section").forEach(section => {
+    section.classList.add("hide");
+  });
+  document.getElementById(sectionId).classList.remove("hide");
 }
-dashboardBtn.addEventListener("click",function(){
 
-    hideSections();
-    dashboardSection.classList.remove("hide");
 
-});
+for (const [buttonId, sectionId] of Object.entries(navButtons)){
+  document.getElementById(buttonId).addEventListener("click", () => {
+    showSection(sectionId);
+    if (sectionId === "listSection") renderStudentTable();
+  });
+}
 
-addStudentBtn.addEventListener("click",function(){
+function findStudentIndexById(id){
+  return students.findIndex(student => student.id === id);
+}
 
-    hideSections();
-    addSection.classList.remove("hide");
+function updateDashboardStats(){
+  document.getElementById("totalStudents").innerText = students.length;
 
-});
+  const uniqueCourses = new Set(students.map(student => student.course));
+  document.getElementById("totalCourses").innerText = uniqueCourses.size;
+}
 
-updateStudentBtn.addEventListener("click",function(){
+function renderStudentTable(){
+  const tableBody = document.getElementById("studentTable");
 
-    hideSections();
-    updateSection.classList.remove("hide");
+  tableBody.innerHTML = students.map(student => `
+    <tr>
+      <td>${student.id}</td>
+      <td>${student.name}</td>
+      <td>${student.age}</td>
+      <td>${student.course}</td>
+      <td>${student.email}</td>
+    </tr>
+  `).join("");
+}
 
-});
 
-searchStudentBtn.addEventListener("click",function(){
+function saveToStorage(){
+  localStorage.setItem("students", JSON.stringify(students));
+}
 
-    hideSections();
-    searchSection.classList.remove("hide");
+function loadFromStorage(){
+  const saved = localStorage.getItem("students");
+  if (saved){
+    students = JSON.parse(saved);
+  }
+}
 
-});
+addForm.addEventListener("submit", function(event){
+  event.preventDefault();
 
-deleteStudentBtn.addEventListener("click",function(){
+  const newStudent = {
+    id:     document.getElementById("studentId").value.trim(),
+    name:   document.getElementById("studentName").value.trim(),
+    age:    document.getElementById("studentAge").value.trim(),
+    course: document.getElementById("studentCourse").value.trim(),
+    email:  document.getElementById("studentEmail").value.trim(),
+  };
 
-    hideSections();
-    deleteSection.classList.remove("hide");
-
-});
-
-studentListBtn.addEventListener("click",function(){
-
-    hideSections();
-    listSection.classList.remove("hide");
-
-    displayStudents();
-
-});
-addForm.addEventListener("submit",function(event){
-
-    event.preventDefault();
-
-    const student={
-
-        id:document.getElementById("studentId").value,
-
-        name:document.getElementById("studentName").value,
-
-        age:document.getElementById("studentAge").value,
-
-        course:document.getElementById("studentCourse").value,
-
-        email:document.getElementById("studentEmail").value
-
-    };
-    if(
-    student.id=="" ||
-    student.name=="" ||
-    student.age=="" ||
-    student.course=="" ||
-    student.email==""
-){
-
+  const hasEmptyField = Object.values(newStudent).some(value => value === "");
+  if (hasEmptyField){
     alert("Please fill all fields.");
     return;
-}
+  }
 
-    students.push(student);
-
-    saveData();
-
-    displayStudents();
-
-    updateDashboard();
-
-    addForm.reset();
-
+  students.push(newStudent);
+  saveToStorage();
+  updateDashboardStats();
+  addForm.reset();
+  alert("Student added.");
 });
-function displayStudents(){
 
-    const table=document.getElementById("studentTable");
 
-    table.innerHTML="";
 
-    for(let i=0;i<students.length;i++){
+searchInput.addEventListener("keyup", function(){
+  const query = searchInput.value.trim().toLowerCase();
 
-        table.innerHTML+=`
+  if (query === ""){
+    searchResult.innerHTML = "";
+    return;
+  }
 
-        <tr>
+  const match = students.find(student =>
+    student.id.toLowerCase().includes(query) ||
+    student.name.toLowerCase().includes(query)
+  );
 
-        <td>${students[i].id}</td>
-
-        <td>${students[i].name}</td>
-
-        <td>${students[i].age}</td>
-
-        <td>${students[i].course}</td>
-
-        <td>${students[i].email}</td>
-
-        </tr>
-
-        `;
-
-    }
-
-}
-function updateDashboard(){
-
-    document.getElementById("totalStudents").innerText=students.length;
-
-    let courses=[];
-
-    for(let i=0;i<students.length;i++){
-
-        if(!courses.includes(students[i].course)){
-
-            courses.push(students[i].course);
-
-        }
-
-    }
-
-    document.getElementById("totalCourses").innerText=courses.length;
-
-}
-function saveData(){
-
-    localStorage.setItem("students",JSON.stringify(students));
-
-}
-function loadData(){
-
-    const data=localStorage.getItem("students");
-
-    if(data){
-
-        students=JSON.parse(data);
-
-    }
-
-    displayStudents();
-
-    updateDashboard();
-
-}
-const searchInput=document.getElementById("searchInput");
-const searchResult=document.getElementById("searchResult");
-
-searchInput.addEventListener("keyup",function(){
-
-    let value=searchInput.value.toLowerCase();
-
-    searchResult.innerHTML="";
-
-    for(let i=0;i<students.length;i++){
-
-        if(
-
-            String(students[i].id).toLowerCase().includes(value) ||
-
-            students[i].name.toLowerCase().includes(value)
-
-        ){
-
-            searchResult.innerHTML=`
-
-            <p><b>ID:</b> ${students[i].id}</p>
-
-            <p><b>Name:</b> ${students[i].name}</p>
-
-            <p><b>Age:</b> ${students[i].age}</p>
-
-            <p><b>Course:</b> ${students[i].course}</p>
-
-            <p><b>Email:</b> ${students[i].email}</p>
-
-            `;
-
-            break;
-
-        }
-
-    }
-
+  searchResult.innerHTML = match
+    ? `
+      <p><b>ID:</b> ${match.id}</p>
+      <p><b>Name:</b> ${match.name}</p>
+      <p><b>Age:</b> ${match.age}</p>
+      <p><b>Course:</b> ${match.course}</p>
+      <p><b>Email:</b> ${match.email}</p>
+    `
+    : `<p>No matching student found.</p>`;
 });
-const deleteBtn=document.getElementById("deleteBtn");
 
-deleteBtn.addEventListener("click",function(){
 
-    const id=document.getElementById("deleteId").value;
 
-    for(let i=0;i<students.length;i++){
+deleteBtn.addEventListener("click", function(){
+  const id = document.getElementById("deleteId").value.trim();
+  const index = findStudentIndexById(id);
 
-        if(students[i].id==id){
+  if (index === -1){
+    alert("No student found with that ID.");
+    return;
+  }
 
-            students.splice(i,1);
-
-            break;
-
-        }
-
-    }
-
-    saveData();
-
-    displayStudents();
-
-    updateDashboard();
-
-    alert("Student Deleted");
-
+  students.splice(index, 1);
+  saveToStorage();
+  updateDashboardStats();
+  renderStudentTable();
+  document.getElementById("deleteId").value = "";
+  alert("Student deleted.");
 });
-const findStudent=document.getElementById("findStudent");
 
-findStudent.addEventListener("click",function(){
 
-    const id=document.getElementById("updateId").value;
+findStudentBtn.addEventListener("click", function(){
+  const id = document.getElementById("updateId").value.trim();
+  const index = findStudentIndexById(id);
 
-    for(let i=0;i<students.length;i++){
-
-        if(students[i].id==id){
-
-            document.getElementById("updateName").value=students[i].name;
-
-            document.getElementById("updateAge").value=students[i].age;
-
-            document.getElementById("updateCourse").value=students[i].course;
-
-            document.getElementById("updateEmail").value=students[i].email;
-
-            return;
-
-        }
-
-    }
-
+  if (index === -1){
     alert("Student Not Found");
+    return;
+  }
 
+  const student = students[index];
+  document.getElementById("updateName").value   = student.name;
+  document.getElementById("updateAge").value    = student.age;
+  document.getElementById("updateCourse").value = student.course;
+  document.getElementById("updateEmail").value  = student.email;
 });
-updateForm.addEventListener("submit",function(event){
 
-    event.preventDefault();
+updateForm.addEventListener("submit", function(event){
+  event.preventDefault();
 
-    const id=document.getElementById("updateId").value;
+  const id = document.getElementById("updateId").value.trim();
+  const index = findStudentIndexById(id);
 
-    for(let i=0;i<students.length;i++){
+  if (index === -1){
+    alert("Find a student by ID first.");
+    return;
+  }
 
-        if(students[i].id==id){
+  students[index].name   = document.getElementById("updateName").value.trim();
+  students[index].age    = document.getElementById("updateAge").value.trim();
+  students[index].course = document.getElementById("updateCourse").value.trim();
+  students[index].email  = document.getElementById("updateEmail").value.trim();
 
-            students[i].name=document.getElementById("updateName").value;
-
-            students[i].age=document.getElementById("updateAge").value;
-
-            students[i].course=document.getElementById("updateCourse").value;
-
-            students[i].email=document.getElementById("updateEmail").value;
-
-            break;
-
-        }
-
-    }
-
-    saveData();
-
-    displayStudents();
-
-    updateDashboard();
-
-    alert("Student Updated");
-
+  saveToStorage();
+  renderStudentTable();
+  updateDashboardStats();
+  alert("Student Updated");
 });
-loadData();
+
+loadFromStorage();
+updateDashboardStats();
+renderStudentTable();

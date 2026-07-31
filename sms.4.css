@@ -1,0 +1,77 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Poppins,sans-serif;
+}
+
+body{
+    height:100vh;
+}
+
+.home{
+
+    height:100vh;
+
+    background-image:url("nba-ny-jan-24-09-66b3d95cccc8a.avif");
+
+    background-size:cover;
+    background-position:center;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.overlay{
+
+    background:rgba(0,0,0,0.55);
+
+    padding:60px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    color:white;
+}
+
+.overlay h1{
+
+    font-size:50px;
+
+    margin-bottom:20px;
+}
+
+.overlay p{
+
+    font-size:20px;
+
+    margin-bottom:30px;
+}
+
+.overlay button{
+
+    padding:15px 40px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+    background:#8A6546;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.overlay button:hover{
+
+    background:#6B4B35;
+
+    transform:scale(1.05);
+}
