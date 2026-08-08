@@ -1,0 +1,111 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Poppins,sans-serif;
+}
+
+body{
+
+    height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background-image:url("nba-ny-jan-24-09-66b3d95cccc8a.avif");
+    background-size:cover;
+    background-position:center;
+}
+
+.login-container{
+
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-box{
+
+    width:380px;
+
+    background:rgba(255,255,255,.92);
+
+    padding:40px;
+
+    border-radius:15px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+    text-align:center;
+}
+
+.login-box h1{
+
+    color:#3A281C;
+    margin-bottom:10px;
+}
+
+.login-box p{
+
+    color:#555;
+    margin-bottom:25px;
+}
+
+.login-box input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-bottom:18px;
+
+    border:1px solid #ccc;
+
+    border-radius:8px;
+
+    font-size:15px;
+}
+
+.login-box input:focus{
+
+    outline:none;
+
+    border-color:#8A6546;
+}
+
+.login-box button{
+
+    width:100%;
+
+    padding:13px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#8A6546;
+
+    color:white;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.login-box button:hover{
+
+    background:#6B4B35;
+}
+
+#error{
+
+    color:red;
+
+    margin-top:15px;
+
+    font-weight:bold;
+}
