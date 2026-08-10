@@ -34,13 +34,13 @@ function showSection(sectionId){
 for (const [buttonId, sectionId] of Object.entries(navButtons)){
   document.getElementById(buttonId).addEventListener("click", () => {
     showSection(sectionId);
-    if (sectionId === "listSection") renderStudentTable();
+    if (sectionId === "listSection") {
+    loadStudents();
+ }
   });
 }
 
-function findStudentIndexById(id){
-  return students.findIndex(student => student.id === id);
-}
+
 
 function updateDashboardStats(){
   document.getElementById("totalStudents").innerText = students.length;
@@ -64,129 +64,228 @@ function renderStudentTable(){
 }
 
 
-function saveToStorage(){
-  localStorage.setItem("students", JSON.stringify(students));
+function loadStudents(){
+
+    fetch("/students")
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        students = data;
+
+        updateDashboardStats();
+
+        renderStudentTable();
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+
+    });
+
 }
 
-function loadFromStorage(){
-  const saved = localStorage.getItem("students");
-  if (saved){
-    students = JSON.parse(saved);
-  }
-}
+addForm.addEventListener("submit", function(event) {
 
-addForm.addEventListener("submit", function(event){
-  event.preventDefault();
+    event.preventDefault();
 
-  const newStudent = {
-    id:     document.getElementById("studentId").value.trim(),
-    name:   document.getElementById("studentName").value.trim(),
-    age:    document.getElementById("studentAge").value.trim(),
-    course: document.getElementById("studentCourse").value.trim(),
-    email:  document.getElementById("studentEmail").value.trim(),
-  };
+    const newStudent = {
+        id: document.getElementById("studentId").value.trim(),
+        name: document.getElementById("studentName").value.trim(),
+        age: document.getElementById("studentAge").value.trim(),
+        course: document.getElementById("studentCourse").value.trim(),
+        email: document.getElementById("studentEmail").value.trim(),
+    };
 
-  const hasEmptyField = Object.values(newStudent).some(value => value === "");
-  if (hasEmptyField){
-    alert("Please fill all fields.");
-    return;
-  }
+    const hasEmptyField = Object.values(newStudent).some(value => value === "");
+    if (hasEmptyField) {
+        alert("Please fill all fields.");
+        return;
+    }
 
-  students.push(newStudent);
-  saveToStorage();
-  updateDashboardStats();
-  addForm.reset();
-  alert("Student added.");
+    // ⬇️ Replace only this fetch block
+    fetch("/students", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newStudent)
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.success) {
+
+            alert(data.message);
+
+            addForm.reset();
+
+            loadStudents();
+
+        } else {
+
+            alert(data.message);
+
+        }
+
+    })
+    .catch(error => {
+
+        console.log(error);
+
+    });
+
+});
+
+searchInput.addEventListener("keyup", function () {
+
+    const id = searchInput.value.trim();
+
+    if (id === "") {
+        searchResult.innerHTML = "";
+        return;
+    }
+
+    fetch(`/students/${id}`)
+
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Student Not Found");
+            }
+
+            return response.json();
+
+        })
+
+        .then(student => {
+
+            searchResult.innerHTML = `
+                <p><b>ID:</b> ${student.id}</p>
+                <p><b>Name:</b> ${student.name}</p>
+                <p><b>Age:</b> ${student.age}</p>
+                <p><b>Course:</b> ${student.course}</p>
+                <p><b>Email:</b> ${student.email}</p>
+            `;
+
+        })
+
+        .catch(() => {
+
+            searchResult.innerHTML = "<p>No matching student found.</p>";
+
+        });
+
+});
+deleteBtn.addEventListener("click", function () {
+
+    const id = document.getElementById("deleteId").value.trim();
+
+    fetch(`/students/${id}`, {
+
+        method: "DELETE"
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        alert(data.message);
+
+        document.getElementById("deleteId").value = "";
+
+        loadStudents();
+
+    })
+
+    .catch(error => console.log(error));
+
+});
+findStudentBtn.addEventListener("click", function () {
+
+    const id = document.getElementById("updateId").value.trim();
+
+    fetch(`/students/${id}`)
+
+    .then(response => {
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        return response.json();
+
+    })
+
+    .then(student => {
+
+        document.getElementById("updateName").value = student.name;
+        document.getElementById("updateAge").value = student.age;
+        document.getElementById("updateCourse").value = student.course;
+        document.getElementById("updateEmail").value = student.email;
+
+    })
+
+    .catch(() => {
+
+        alert("Student Not Found");
+
+    });
+
+});
+
+updateForm.addEventListener("submit", function (event) {
+
+    event.preventDefault();
+
+    const id = document.getElementById("updateId").value.trim();
+
+    const updatedStudent = {
+
+        name: document.getElementById("updateName").value.trim(),
+        age: document.getElementById("updateAge").value.trim(),
+        course: document.getElementById("updateCourse").value.trim(),
+        email: document.getElementById("updateEmail").value.trim()
+
+    };
+
+    fetch(`/students/${id}`, {
+
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(updatedStudent)
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        alert(data.message);
+
+        loadStudents();
+
+    })
+
+    .catch(error => console.log(error));
+
 });
 
 
 
-searchInput.addEventListener("keyup", function(){
-  const query = searchInput.value.trim().toLowerCase();
-
-  if (query === ""){
-    searchResult.innerHTML = "";
-    return;
-  }
-
-  const match = students.find(student =>
-    student.id.toLowerCase().includes(query) ||
-    student.name.toLowerCase().includes(query)
-  );
-
-  searchResult.innerHTML = match
-    ? `
-      <p><b>ID:</b> ${match.id}</p>
-      <p><b>Name:</b> ${match.name}</p>
-      <p><b>Age:</b> ${match.age}</p>
-      <p><b>Course:</b> ${match.course}</p>
-      <p><b>Email:</b> ${match.email}</p>
-    `
-    : `<p>No matching student found.</p>`;
-});
 
 
+loadStudents();
 
-deleteBtn.addEventListener("click", function(){
-  const id = document.getElementById("deleteId").value.trim();
-  const index = findStudentIndexById(id);
-
-  if (index === -1){
-    alert("No student found with that ID.");
-    return;
-  }
-
-  students.splice(index, 1);
-  saveToStorage();
-  updateDashboardStats();
-  renderStudentTable();
-  document.getElementById("deleteId").value = "";
-  alert("Student deleted.");
-});
-
-
-findStudentBtn.addEventListener("click", function(){
-  const id = document.getElementById("updateId").value.trim();
-  const index = findStudentIndexById(id);
-
-  if (index === -1){
-    alert("Student Not Found");
-    return;
-  }
-
-  const student = students[index];
-  document.getElementById("updateName").value   = student.name;
-  document.getElementById("updateAge").value    = student.age;
-  document.getElementById("updateCourse").value = student.course;
-  document.getElementById("updateEmail").value  = student.email;
-});
-
-updateForm.addEventListener("submit", function(event){
-  event.preventDefault();
-
-  const id = document.getElementById("updateId").value.trim();
-  const index = findStudentIndexById(id);
-
-  if (index === -1){
-    alert("Find a student by ID first.");
-    return;
-  }
-
-  students[index].name   = document.getElementById("updateName").value.trim();
-  students[index].age    = document.getElementById("updateAge").value.trim();
-  students[index].course = document.getElementById("updateCourse").value.trim();
-  students[index].email  = document.getElementById("updateEmail").value.trim();
-
-  saveToStorage();
-  renderStudentTable();
-  updateDashboardStats();
-  alert("Student Updated");
-});
-
-loadFromStorage();
-updateDashboardStats();
-renderStudentTable();
-document.getElementById("logoutBtn").addEventListener("click",function(){
+document.getElementById("logoutBtn").addEventListener("click", function(){
 
     localStorage.removeItem("teacherLoggedIn");
 
