@@ -59,20 +59,18 @@ app.get("/students", (req, res) => {
     });
 
 });
+app.get("/students/:search", (req, res) => {
 
+    const search = req.params.search;
 
+    const sql = `
+        SELECT * FROM students
+        WHERE id = ? OR name LIKE ?
+    `;
 
-app.get("/students/:id", (req, res) => {
-
-    const id = req.params.id;
-
-    const sql = "SELECT * FROM students WHERE id = ?";
-
-    db.query(sql, [id], (err, result) => {
+    db.query(sql, [search, `%${search}%`], (err, result) => {
 
         if (err) {
-            console.log(err);
-
             return res.status(500).json({
                 success: false,
                 message: "Database Error"
@@ -91,6 +89,9 @@ app.get("/students/:id", (req, res) => {
     });
 
 });
+
+
+
 
 
 
