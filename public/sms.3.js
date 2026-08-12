@@ -287,6 +287,7 @@ findStudentBtn.addEventListener("click", function () {
 
     .then(student => {
 
+        document.getElementById("updateNewId").value = student.id;
         document.getElementById("updateName").value = student.name;
         document.getElementById("updateAge").value = student.age;
         document.getElementById("updateCourse").value = student.course;
@@ -310,6 +311,7 @@ updateForm.addEventListener("submit", function (event) {
 
     const updatedStudent = {
 
+        newId: document.getElementById("updateNewId").value.trim(),
         name: document.getElementById("updateName").value.trim(),
         age: document.getElementById("updateAge").value.trim(),
         course: document.getElementById("updateCourse").value.trim(),

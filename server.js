@@ -146,15 +146,17 @@ app.put("/students/:id", requireAuth, (req, res) => {
 
     const id = req.params.id;
 
-    const { name, age, course, email } = req.body;
+    const { newId, name, age, course, email } = req.body;
 
     const sql = `
         UPDATE students
-        SET name=?, age=?, course=?, email=?
+        SET id=?, name=?, age=?, course=?, email=?
         WHERE id=?
     `;
 
-    db.query(sql, [name, age, course, email, id], (err, result) => {
+    const targetId = newId ? newId : id;
+
+    db.query(sql, [targetId, name, age, course, email, id], (err, result) => {
 
         if (err) {
             console.log(err);
