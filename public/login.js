@@ -1,5 +1,14 @@
 const loginForm = document.getElementById("loginForm");
 
+document.getElementById("showPassword").addEventListener("change", function() {
+    const passwordInput = document.getElementById("password");
+    if (this.checked) {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
+});
+
 loginForm.addEventListener("submit",function(event){
 
     event.preventDefault();
@@ -14,16 +23,22 @@ loginForm.addEventListener("submit",function(event){
         .value
         .trim();
 
-    if(username === "teacher" && password === "12345"){
-
-        localStorage.setItem("teacherLoggedIn","true");
-
-        window.location.href = "sms.1.html";
-    }
-    else{
-
-        document.getElementById("error").innerText =
-        "Invalid Username or Password";
-    }
+    fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "sms.1.html";
+        } else {
+            document.getElementById("error").innerText = data.message || "Invalid Username or Password";
+        }
+    })
+    .catch(error => {
+        document.getElementById("error").innerText = "An error occurred. Please try again.";
+        console.error("Login error:", error);
+    });
 
 });

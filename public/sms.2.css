@@ -307,3 +307,69 @@ form button,
 }
 
 }
+
+/* Custom Autocomplete Styles */
+.autocomplete-container {
+    position: relative;
+    width: 100%;
+}
+
+#searchSection .autocomplete-container {
+    width: 350px;
+    margin-bottom: 20px;
+}
+#searchSection input#searchInput {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+#updateSection .autocomplete-container,
+#deleteSection .autocomplete-container {
+    margin-bottom: 18px;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #FFFDF9;
+    border: 1px solid #C9B29A;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(74,52,38,.15);
+    z-index: 100;
+    list-style: none;
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    color: #3A281C;
+    border-bottom: 1px solid #EFE4D7;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: #EFE4D7;
+}
+
+.autocomplete-list::-webkit-scrollbar {
+    width: 6px;
+}
+.autocomplete-list::-webkit-scrollbar-thumb {
+    background: #C9B29A;
+    border-radius: 3px;
+}
+
+@media(max-width:900px){
+    #searchSection .autocomplete-container {
+        width: 100%;
+    }
+}

@@ -1,14 +1,60 @@
 const express = require("express");
+const session = require("express-session");
 const db = require("./db");
 
 const app = express();
 
 app.use(express.json());
+app.use(session({
+    secret: 'student-management-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
 app.use(express.static("public"));
 
+app.post("/login", (req, res) => {
+    const { username, password } = req.body;
+    const sql = "SELECT * FROM teachers WHERE username = ? AND password = ?";
+    db.query(sql, [username, password], (err, result) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+        if (result.length > 0) {
+            req.session.teacherLoggedIn = true;
+            return res.json({ success: true });
+        } else {
+            return res.status(401).json({ success: false, message: "Invalid Username or Password" });
+        }
+    });
+});
 
+app.get("/check-auth", (req, res) => {
+    if (req.session.teacherLoggedIn) {
+        res.json({ authenticated: true });
+    } else {
+        res.status(401).json({ authenticated: false });
+    }
+});
 
-app.post("/students", (req, res) => {
+app.post("/logout", (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Failed to logout" });
+        }
+        res.json({ success: true });
+    });
+});
+
+const requireAuth = (req, res, next) => {
+    if (req.session.teacherLoggedIn) {
+        next();
+    } else {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+};
+
+app.post("/students", requireAuth, (req, res) => {
 
     const { id, name, age, course, email } = req.body;
 
@@ -39,7 +85,7 @@ app.post("/students", (req, res) => {
 
 
 
-app.get("/students", (req, res) => {
+app.get("/students", requireAuth, (req, res) => {
 
     const sql = "SELECT * FROM students";
 
@@ -59,7 +105,7 @@ app.get("/students", (req, res) => {
     });
 
 });
-app.get("/students/:search", (req, res) => {
+app.get("/students/:search", requireAuth, (req, res) => {
 
     const search = req.params.search;
 
@@ -96,7 +142,7 @@ app.get("/students/:search", (req, res) => {
 
 
 
-app.put("/students/:id", (req, res) => {
+app.put("/students/:id", requireAuth, (req, res) => {
 
     const id = req.params.id;
 
@@ -137,7 +183,7 @@ app.put("/students/:id", (req, res) => {
 
 
 
-app.delete("/students/:id", (req, res) => {
+app.delete("/students/:id", requireAuth, (req, res) => {
 
     const id = req.params.id;
 
