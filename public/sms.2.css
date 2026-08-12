@@ -30,6 +30,11 @@ body{
     padding:30px 20px;
 
     box-shadow:4px 0 15px rgba(0,0,0,.25);
+    
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 
@@ -225,43 +230,82 @@ form button:hover,
 }
 
 
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    margin-top:20px;
+/* Modern Table Styles */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 65vh;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px rgba(138, 101, 70, 0.08);
+    background: white;
+    margin-top: 25px;
+    border: 1px solid #EFE4D7;
 }
 
-thead{
-
-    background:#6B4B35;
-    color:white;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
 }
 
-th{
-
-    padding:15px;
+thead {
+    background: linear-gradient(135deg, #8A6546, #6B4B35);
+    color: white;
 }
 
-td{
-
-    padding:14px;
-
-    text-align:center;
-
-    border-bottom:1px solid #ddd;
+th {
+    padding: 18px 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #8A6546, #6B4B35);
 }
 
-tbody tr:nth-child(even){
-
-    background:#FAF5EF;
+th:first-child, td:first-child {
+    padding-left: 25px;
 }
 
-tbody tr:hover{
+td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid #F3E8DD;
+    color: #4A3A2C;
+    font-size: 14.5px;
+}
 
-    background:#EFE4D7;
+tbody tr {
+    transition: all 0.25s ease-in-out;
+}
+
+tbody tr:nth-child(even) {
+    background: #FAF5EF;
+}
+
+tbody tr:hover {
+    background: #F3E8DD;
+    box-shadow: inset 4px 0 0 #8A6546;
+}
+
+.course-badge {
+    background: #EFE4D7;
+    color: #6B4B35;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.student-name {
+    font-weight: 600;
+    color: #3A281C;
 }
 
 

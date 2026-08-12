@@ -60,9 +60,9 @@ function renderStudentTable(){
   tableBody.innerHTML = students.map(student => `
     <tr>
       <td>${student.id}</td>
-      <td>${student.name}</td>
+      <td><span class="student-name">${student.name}</span></td>
       <td>${student.age}</td>
-      <td>${student.course}</td>
+      <td><span class="course-badge">${student.course}</span></td>
       <td>${student.email}</td>
     </tr>
   `).join("");
