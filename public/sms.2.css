@@ -204,6 +204,10 @@ form button:hover,
     background: #6B4B35;
 }
 
+#findStudent {
+    margin-bottom: 18px;
+}
+
 #deleteBtn {
 
     background: #9B3D2E;
