@@ -18,10 +18,15 @@ const navButtons = {
   deleteStudentBtn: "deleteSection",
   studentListBtn:   "listSection",
 };
-if(localStorage.getItem("teacherLoggedIn") !== "true"){
-
-    window.location.href = "teacher-login.html";
-}
+fetch("/check-auth")
+    .then(response => {
+        if (!response.ok) {
+            window.location.href = "login.sms.html";
+        }
+    })
+    .catch(() => {
+        window.location.href = "login.sms.html";
+    });
 
 function showSection(sectionId){
   document.querySelectorAll(".content section").forEach(section => {
@@ -64,6 +69,69 @@ function renderStudentTable(){
 }
 
 
+function setupAutocomplete(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "autocomplete-container";
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    
+    const list = document.createElement("ul");
+    list.className = "autocomplete-list hide";
+    wrapper.appendChild(list);
+    
+    input.addEventListener("input", function() {
+        const val = this.value.trim().toLowerCase();
+        list.innerHTML = "";
+        
+        if (!val) {
+            list.classList.add("hide");
+            return;
+        }
+        
+        const matches = students.filter(s => 
+            s.id.toString().toLowerCase().includes(val) || 
+            s.name.toLowerCase().includes(val)
+        );
+        
+        if (matches.length > 0) {
+            matches.forEach(s => {
+                const item = document.createElement("li");
+                item.className = "autocomplete-item";
+                item.innerText = `${s.name} (ID: ${s.id} - ${s.course})`;
+                item.addEventListener("mousedown", function(e) {
+                    e.preventDefault(); // Prevent blur
+                    input.value = s.id;
+                    list.classList.add("hide");
+                    if (inputId === 'searchInput') {
+                        input.dispatchEvent(new Event('keyup'));
+                    }
+                });
+                list.appendChild(item);
+            });
+            list.classList.remove("hide");
+        } else {
+            list.classList.add("hide");
+        }
+    });
+    
+    input.addEventListener("blur", function() {
+        list.classList.add("hide");
+    });
+    
+    input.addEventListener("focus", function() {
+        if (this.value.trim().length > 0 && list.children.length > 0) {
+            list.classList.remove("hide");
+        }
+    });
+}
+
+setupAutocomplete("searchInput");
+setupAutocomplete("updateId");
+setupAutocomplete("deleteId");
+
 function loadStudents(){
 
     fetch("/students")
@@ -77,7 +145,6 @@ function loadStudents(){
         updateDashboardStats();
 
         renderStudentTable();
-
     })
 
     .catch(error => {
@@ -105,8 +172,6 @@ addForm.addEventListener("submit", function(event) {
         alert("Please fill all fields.");
         return;
     }
-
-    // ⬇️ Replace only this fetch block
     fetch("/students", {
         method: "POST",
         headers: {
@@ -287,8 +352,11 @@ loadStudents();
 
 document.getElementById("logoutBtn").addEventListener("click", function(){
 
-    localStorage.removeItem("teacherLoggedIn");
-
-    window.location.href = "teacher-login.html";
+    fetch("/logout", { method: "POST" })
+    .then(() => {
+        window.location.href = "login.sms.html";
+    })
+    .catch(err => console.error("Logout failed", err));
 
 });
+//rifuffhjvv//
