@@ -60,9 +60,9 @@ function renderStudentTable(){
   tableBody.innerHTML = students.map(student => `
     <tr>
       <td>${student.id}</td>
-      <td><span class="student-name">${student.name}</span></td>
+      <td>${student.name}</td>
       <td>${student.age}</td>
-      <td><span class="course-badge">${student.course}</span></td>
+      <td>${student.course}</td>
       <td>${student.email}</td>
     </tr>
   `).join("");
@@ -144,8 +144,7 @@ function loadStudents(){
 
         updateDashboardStats();
 
-        renderStudentTable();
-    })
+        renderStudentTable();    })
 
     .catch(error => {
 
