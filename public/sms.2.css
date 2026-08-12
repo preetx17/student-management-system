@@ -29,6 +29,11 @@ body {
     padding: 30px 20px;
 
     box-shadow: 4px 0 15px rgba(0, 0, 0, .25);
+     
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 
@@ -37,6 +42,7 @@ body {
     margin-bottom: 35px;
     font-size: 28px;
     letter-spacing: 2px;
+
 }
 
 .sidebar button {
@@ -232,6 +238,8 @@ form button:hover,
     background: white;
     margin-top: 25px;
     border: 1px solid #EFE4D7;
+    overflow-y: auto;
+    max-height: 65vh;
 }
 
 table {
@@ -252,6 +260,10 @@ th {
     font-size: 13px;
     letter-spacing: 0.8px;
     text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #8A6546, #6B4B35);
 }
 
 th:first-child,
