@@ -4,47 +4,44 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Login</title>
-
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="login.css">
-
 </head>
 <body>
 
 <div class="login-container">
-
     <div class="login-box">
-
+        <div class="icon-container">
+            <i class="fa-solid fa-chalkboard-user"></i>
+        </div>
         <h1>Teacher Login</h1>
-
         <p>Please login to continue</p>
-
         <form id="loginForm">
-
-            <input
-            type="text"
-            id="username"
-            placeholder="Username">
-
-            <input
-            type="password"
-            id="password"
-            placeholder="Password">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
             
-            <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 18px; margin-top: -10px;">
-                <input type="checkbox" id="showPassword" style="width: auto; margin-bottom: 0; margin-right: 8px;">
-                <label for="showPassword" style="color: #555; font-size: 14px; margin-bottom: 0; cursor: pointer;">Show Password</label>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            
+            <div class="show-password-container">
+                <input type="checkbox" id="showPassword">
+                <label for="showPassword">Show Password</label>
             </div>
 
             <button type="submit">
-                Login
+                <i class="fa-solid fa-right-to-bracket"></i> Login
             </button>
-
         </form>
-
         <p id="error"></p>
-
+        <div style="margin-top: 20px; font-size: 14px; color: #64748b;">
+            Don't have an account? <a href="signup.sms.html" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Sign Up</a>
+        </div>
     </div>
-
 </div>
 
 <script src="login.js"></script>

@@ -3,159 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
+    <title>Modern Student Management System</title>
     <link rel="stylesheet" href="sms.2.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<div class="container">
-
-    <aside class="sidebar">
-
-        <h2>SMS</h2>
-        <button id="logoutBtn">Logout</button>
-
-        <button id="dashboardBtn">Dashboard</button>
-
-        <button id="addStudentBtn">Add Student</button>
-
-        <button id="updateStudentBtn">Update Student</button>
-
-        <button id="searchStudentBtn">Search Student</button>
-
-        <button id="deleteStudentBtn">Delete Student</button>
-
-        <button id="studentListBtn">Student List</button>
-
-    </aside>
-
-    <main class="content">
-        <section id="dashboardSection">
-
-            <h1>Student Management System</h1>
-
-            <div class="cards">
-
-                <div class="card">
-                    <h3>Total Students</h3>
-                    <p id="totalStudents">0</p>
-                </div>
-
-                <div class="card">
-                    <h3>Total Courses</h3>
-                    <p id="totalCourses">0</p>
-                </div>
-
+<div class="dashboard-container">
+    <!-- LEFT SIDE: STUDENT DASHBOARD -->
+    <div class="left-panel">
+        <div class="panel-header">
+            <h2><i class="fa-solid fa-user-graduate"></i> Student Dashboard</h2>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="card">
+                <h3>Total Students</h3>
+                <p id="totalStudents">0</p>
             </div>
+            <div class="card">
+                <h3>Total Courses</h3>
+                <p id="totalCourses">0</p>
+            </div>
+        </div>
 
-        </section>
-        <section id="addSection" class="hide">
-
-            <h2>Add Student</h2>
-
-            <form id="addForm">
-
-                <input type="text" id="studentId" placeholder="Student ID">
-
-                <input type="text" id="studentName" placeholder="Student Name">
-
-                <input type="number" id="studentAge" placeholder="Age">
-
-                <input type="text" id="studentCourse" placeholder="Course">
-
-                <input type="email" id="studentEmail" placeholder="Email">
-
-                <button type="submit">Save Student</button>
-
-            </form>
-
-        </section>
-
-        <section id="updateSection" class="hide">
-
-            <h2>Update Student</h2>
-
-            <input type="text" id="updateId" placeholder="Enter Student ID">
-
-            <button id="findStudent">Find Student</button>
-
-            <form id="updateForm">
-
-                <input type="text" id="updateNewId" placeholder="New Student ID">
-
-                <input type="text" id="updateName" placeholder="Student Name">
-
-                <input type="number" id="updateAge" placeholder="Age">
-
-                <input type="text" id="updateCourse" placeholder="Course">
-
-                <input type="email" id="updateEmail" placeholder="Email">
-
-                <button type="submit">Update Student</button>
-
-            </form>
-
-        </section>
-
-        <section id="searchSection" class="hide">
-
-            <h2>Search Student</h2>
-
-            <input type="text"
-                   id="searchInput"
-                   placeholder="Search by ID or Name">
-
-            <div id="searchResult"></div>
-
-        </section>
-
-        <section id="deleteSection" class="hide">
-
-            <h2>Delete Student</h2>
-
-            <input type="text"
-                   id="deleteId"
-                   placeholder="Enter Student ID">
-
-            <button id="deleteBtn">Delete</button>
-
-        </section>
-        <section id="listSection" class="hide">
-
-            <h2>Student List</h2>
-
+        <div class="student-list-container">
+            <h3><i class="fa-solid fa-users"></i> Student List</h3>
             <div class="table-wrapper">
                 <table>
-
                     <thead>
-
                         <tr>
-
+                            <th>Photo</th>
                             <th>ID</th>
-
                             <th>Name</th>
-
                             <th>Age</th>
-
                             <th>Course</th>
-
                             <th>Email</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody id="studentTable">
-
+                        <!-- injected by JS -->
                     </tbody>
-
                 </table>
             </div>
+        </div>
+    </div>
 
-        </section>
+    <!-- RIGHT SIDE: TEACHER DASHBOARD -->
+    <div class="right-panel">
+        
+        <!-- TOP RIGHT PROFILE MENU -->
+        <div class="top-profile-menu">
+            <div class="profile-trigger" id="profileTrigger">
+                <img id="topTeacherPhoto" src="https://via.placeholder.com/30" alt="Teacher">
+                <span id="topTeacherName">Loading...</span>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: #94a3b8;"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                    <img id="dropdownTeacherPhoto" src="https://via.placeholder.com/60" alt="Teacher">
+                    <h4 id="dropdownTeacherName">Name</h4>
+                    <p id="dropdownTeacherDept">Department</p>
+                    <p id="dropdownTeacherAge">Age: -</p>
+                </div>
+                <button id="adminSettingsBtn" class="hide" style="color: #8b5cf6;"><i class="fa-solid fa-gear"></i> Admin Settings</button>
+                <button id="editProfileBtn"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
+                <button id="logoutBtn" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </div>
 
-    </main>
+        <div class="panel-header" style="margin-top: 10px;">
+            <h2><i class="fa-solid fa-chalkboard-user"></i> Teacher Dashboard</h2>
+        </div>
 
+        <div class="action-tabs">
+            <button class="tab-btn active" data-target="addSection"><i class="fa-solid fa-user-plus"></i> Add</button>
+            <button class="tab-btn" data-target="updateSection"><i class="fa-solid fa-user-pen"></i> Update</button>
+            <button class="tab-btn" data-target="searchSection"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            <button class="tab-btn" data-target="deleteSection"><i class="fa-solid fa-user-minus"></i> Delete</button>
+        </div>
+
+        <div class="action-content">
+            <!-- ADD SECTION -->
+            <section id="addSection" class="action-section active">
+                <h3>Add New Student</h3>
+                <form id="addForm">
+                    <div class="input-group">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <input type="text" id="studentId" placeholder="Student ID" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="studentName" placeholder="Student Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="number" id="studentAge" placeholder="Age" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-book"></i>
+                        <input type="text" id="studentCourse" placeholder="Course" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="studentEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group file-input-group">
+                        <i class="fa-solid fa-image"></i>
+                        <input type="file" id="studentPhoto" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Save Student</button>
+                </form>
+            </section>
+
+            <!-- UPDATE SECTION -->
+            <section id="updateSection" class="action-section hide">
+                <h3>Update Student</h3>
+                <div class="search-bar">
+                    <div class="input-group">
+                        <i class="fa-solid fa-id-card"></i>
+                        <input type="text" id="updateId" placeholder="Enter Student ID">
+                    </div>
+                    <button id="findStudent" class="btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Find</button>
+                </div>
+                <form id="updateForm" class="hide">
+                    <div class="input-group">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <input type="text" id="updateNewId" placeholder="New Student ID" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="updateName" placeholder="Student Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="number" id="updateAge" placeholder="Age" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-book"></i>
+                        <input type="text" id="updateCourse" placeholder="Course" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="updateEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group file-input-group">
+                        <i class="fa-solid fa-image"></i>
+                        <input type="file" id="updatePhoto" accept="image/*">
+                    </div>
+                    <small style="color:#94a3b8; display:block; margin-bottom:15px; margin-left:10px;">Leave empty to keep current photo.</small>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Update Student</button>
+                </form>
+            </section>
+
+            <!-- SEARCH SECTION -->
+            <section id="searchSection" class="action-section hide">
+                <h3>Search Student</h3>
+                <div class="input-group">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search by ID or Name">
+                </div>
+                <div id="searchResult" class="hide"></div>
+            </section>
+
+            <!-- DELETE SECTION -->
+            <section id="deleteSection" class="action-section hide">
+                <h3>Delete Student</h3>
+                <div class="input-group">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <input type="text" id="deleteId" placeholder="Enter Student ID">
+                </div>
+                <button id="deleteBtn" class="btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT TEACHER PROFILE MODAL -->
+<div class="modal-overlay hide" id="editProfileModal">
+    <div class="modal-content">
+        <button class="modal-close" id="closeProfileModal"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom: 20px; color: #1e293b;">Edit Teacher Profile</h3>
+        <form id="editProfileForm">
+            <div class="input-group">
+                <i class="fa-solid fa-id-card"></i>
+                <input type="text" id="profUsername" placeholder="Username (Login ID)" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="profPassword" placeholder="New Password (leave blank to keep current)">
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="profName" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-calendar-days"></i>
+                <input type="number" id="profAge" placeholder="Age" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-building"></i>
+                <input type="text" id="profDept" placeholder="Department" required>
+            </div>
+            <div class="input-group file-input-group">
+                <i class="fa-solid fa-image"></i>
+                <input type="file" id="profPhoto" accept="image/*">
+            </div>
+            <button type="submit" class="btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- STUDENT DETAILS MODAL -->
+<div class="modal-overlay hide" id="studentDetailsModal">
+    <div class="modal-content" style="text-align: center;">
+        <button class="modal-close" id="closeStudentModal"><i class="fa-solid fa-xmark"></i></button>
+        <div id="studentDetailsContent">
+            <!-- Injected by JS -->
+        </div>
+        <div id="addStudentImageSection" class="hide" style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: left;">
+            <h4 style="margin-bottom: 10px; color: #334155;">Quick Add Image</h4>
+            <div class="file-input-group" style="display: flex; gap: 10px;">
+                <input type="file" id="quickAddPhoto" accept="image/*" style="flex: 1; border: 1px solid #e2e8f0; padding: 5px; border-radius: 8px;">
+                <button id="quickAddPhotoBtn" class="btn-primary" style="margin-top: 0; width: auto; padding: 8px 20px;">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN SETTINGS MODAL -->
+<div class="modal-overlay hide" id="adminSettingsModal">
+    <div class="modal-content">
+        <button class="modal-close" id="closeAdminSettingsModal"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom: 20px; color: #1e293b;"><i class="fa-solid fa-gear" style="color: #8b5cf6;"></i> Admin Settings</h3>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Update the secret code required for new teachers to sign up.</p>
+        <form id="adminSettingsForm">
+            <div class="input-group">
+                <i class="fa-solid fa-key"></i>
+                <input type="text" id="currentInviteCode" placeholder="Current Invite Code" required>
+            </div>
+            <button type="submit" class="btn-primary" style="background: #8b5cf6;"><i class="fa-solid fa-floppy-disk"></i> Update Invite Code</button>
+        </form>
+    </div>
 </div>
 
 <script src="sms.3.js"></script>
