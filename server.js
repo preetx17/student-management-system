@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
+const sanitizeHtml = require("sanitize-html");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const path = require("path");
@@ -44,11 +45,50 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(express.json());
+
+// Global Input Sanitization Middleware
+const sanitizeMiddleware = (req, res, next) => {
+    const sanitizeObj = (obj) => {
+        for (let key in obj) {
+            if (typeof obj[key] === 'string') {
+                obj[key] = sanitizeHtml(obj[key], {
+                    allowedTags: [], // Disallow all HTML tags
+                    allowedAttributes: {}
+                });
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                sanitizeObj(obj[key]);
+            }
+        }
+    };
+    
+    if (req.body) sanitizeObj(req.body);
+    if (req.query) sanitizeObj(req.query);
+    if (req.params) sanitizeObj(req.params);
+    
+    next();
+};
+app.use(sanitizeMiddleware);
+
+// Trust proxy if behind a load balancer (like Render or Heroku)
+app.set('trust proxy', 1);
+
+// Enforce HTTPS in production
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
+        return res.redirect('https://' + req.headers.host + req.url);
+    }
+    next();
+});
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'student-management-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // True if on HTTPS
+        httpOnly: true, // Prevents client-side JS from reading the cookie
+        sameSite: 'lax' // CSRF protection
+    }
 }));
 app.use(express.static("public"));
 

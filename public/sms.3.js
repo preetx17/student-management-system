@@ -37,6 +37,19 @@ const addStudentImageSection = document.getElementById("addStudentImageSection")
 const quickAddPhotoBtn = document.getElementById("quickAddPhotoBtn");
 
 let students = [];
+
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
 let currentViewingStudentId = null;
 
 const COURSE_MAPPING = {
@@ -237,7 +250,7 @@ tabBtns.forEach(btn => {
 
 function updateDashboardStats(){
   document.getElementById("totalStudents").innerText = students.length;
-  const uniqueCourses = new Set(students.map(student => student.course));
+  const uniqueCourses = new Set(students.map(student => (student.course || "").toLowerCase()));
   document.getElementById("totalCourses").innerText = uniqueCourses.size;
 }
 
@@ -259,15 +272,15 @@ function renderStudentTable(){
   }
   
   tableBody.innerHTML = students.map(student => `
-    <tr onclick="openStudentDetails('${student.id}')">
+    <tr onclick="openStudentDetails('${escapeHTML(student.id.toString())}')">
       <td>
-        ${student.photo ? `<img src="${student.photo}" class="student-photo-img" alt="Photo">` : `<img src="https://via.placeholder.com/40" class="student-photo-img" alt="No Photo">`}
+        ${student.photo ? `<img src="${escapeHTML(student.photo)}" class="student-photo-img" alt="Photo">` : `<img src="https://via.placeholder.com/40" class="student-photo-img" alt="No Photo">`}
       </td>
-      <td>${student.id}</td>
-      <td>${student.name}</td>
-      <td>${student.age}</td>
-      <td>${student.course}</td>
-      <td>${student.email}</td>
+      <td>${escapeHTML(student.id.toString())}</td>
+      <td>${escapeHTML(student.name)}</td>
+      <td>${escapeHTML(student.age.toString())}</td>
+      <td>${escapeHTML(student.course)}</td>
+      <td>${escapeHTML(student.email)}</td>
     </tr>
   `).join("");
 }
@@ -697,7 +710,7 @@ function renderCourseView() {
                     <table>
                         <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Email</th></tr></thead>
                         <tbody>
-                            ${enrolled.map(s => `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.age}</td><td>${s.email}</td></tr>`).join("")}
+                            ${enrolled.map(s => `<tr><td>${escapeHTML(s.id.toString())}</td><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.age.toString())}</td><td>${escapeHTML(s.email)}</td></tr>`).join("")}
                         </tbody>
                     </table>
                 </div>
