@@ -1,5 +1,7 @@
+require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
+const bcrypt = require("bcrypt");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -43,25 +45,54 @@ const upload = multer({ storage: storage });
 
 app.use(express.json());
 app.use(session({
-    secret: 'student-management-secret',
+    secret: process.env.SESSION_SECRET || 'student-management-secret',
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false } // Set to true if using HTTPS
 }));
 app.use(express.static("public"));
 
+async function isPasswordUnique(plainPassword) {
+    return new Promise((resolve, reject) => {
+        db.query("SELECT password FROM teachers", (err, results) => {
+            if (err) return reject(err);
+            for (let row of results) {
+                if (row.password && (row.password.startsWith("$2b$") || row.password.startsWith("$2a$"))) {
+                    if (bcrypt.compareSync(plainPassword, row.password)) {
+                        return resolve(false); 
+                    }
+                } else if (row.password === plainPassword) {
+                    return resolve(false); 
+                }
+            }
+            resolve(true); 
+        });
+    });
+}
+
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
-    const sql = "SELECT * FROM teachers WHERE username = ? AND password = ?";
-    db.query(sql, [username, password], (err, result) => {
+    const sql = "SELECT * FROM teachers WHERE username = ?";
+    db.query(sql, [username], async (err, result) => {
         if (err) {
             return res.status(500).json({ success: false, message: "Database error" });
         }
         if (result.length > 0) {
-            req.session.teacherLoggedIn = true;
-            req.session.username = username;
-            req.session.role = result[0].role; // Store role in session
-            return res.json({ success: true });
+            let match = false;
+            if (result[0].password.startsWith("$2b$") || result[0].password.startsWith("$2a$")) {
+                match = await bcrypt.compare(password, result[0].password);
+            } else {
+                match = (password === result[0].password);
+            }
+
+            if (match) {
+                req.session.teacherLoggedIn = true;
+                req.session.username = username;
+                req.session.role = result[0].role;
+                return res.json({ success: true });
+            } else {
+                return res.status(401).json({ success: false, message: "Invalid Username or Password" });
+            }
         } else {
             return res.status(401).json({ success: false, message: "Invalid Username or Password" });
         }
@@ -375,36 +406,51 @@ app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) 
     const { newUsername, name, age, department, newPassword, course1, course2 } = req.body;
     const targetUsername = newUsername || username;
     
-    let sql, params;
-    let baseSql = "UPDATE teachers SET username=?, name=?, age=?, department=?, course1=?, course2=?";
-    let baseParams = [targetUsername, name, age, department, course1 || null, course2 || null];
+    const updateProfile = async () => {
+        let sql, params;
+        let baseSql = "UPDATE teachers SET username=?, name=?, age=?, department=?, course1=?, course2=?";
+        let baseParams = [targetUsername, name, age, department, course1 || null, course2 || null];
 
-    if (newPassword) {
-        baseSql += ", password=?";
-        baseParams.push(newPassword);
-    }
+        if (newPassword) {
+            const isUnique = await isPasswordUnique(newPassword);
+            if (!isUnique) {
+                return res.status(400).json({ success: false, message: "This password is already in use by another teacher. Please choose a unique password." });
+            }
+            const hash = await bcrypt.hash(newPassword, 10);
+            baseSql += ", password=?";
+            baseParams.push(hash);
+        }
+        
+        if (req.file) {
+            const photo = `/uploads/${req.file.filename}`;
+            baseSql += ", photo=?";
+            baseParams.push(photo);
+        }
+
+        baseSql += " WHERE username=?";
+        baseParams.push(username);
+
+        sql = baseSql;
+        params = baseParams;
+
+        db.query(sql, params, (err, result) => {
+            if (err) {
+                console.log(err);
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ success: false, message: "Username already exists" });
+                }
+                return res.status(500).json({ success: false, message: "Error updating profile" });
+            }
+            if (targetUsername !== username) {
+                req.session.username = targetUsername;
+            }
+            res.json({ success: true, message: "Profile updated successfully!" });
+        });
+    };
     
-    if (req.file) {
-        const photo = `/uploads/${req.file.filename}`;
-        baseSql += ", photo=?";
-        baseParams.push(photo);
-    }
-
-    baseSql += " WHERE username=?";
-    baseParams.push(username);
-
-    sql = baseSql;
-    params = baseParams;
-
-    db.query(sql, params, (err, result) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ success: false, message: "Error updating profile" });
-        }
-        if (targetUsername !== username) {
-            req.session.username = targetUsername;
-        }
-        res.json({ success: true, message: "Profile updated successfully!" });
+    updateProfile().catch(err => {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
     });
 });
 
@@ -441,15 +487,27 @@ app.post("/signup", (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid Invite Code. You do not have permission to register." });
         }
         
-        const sql = "INSERT INTO teachers (username, password, role) VALUES (?, ?, 'teacher')";
-        db.query(sql, [username, password], (err, result) => {
-            if (err) {
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(400).json({ success: false, message: "Username already exists" });
-                }
-                return res.status(500).json({ success: false, message: "Database error" });
+        isPasswordUnique(password).then(isUnique => {
+            if (!isUnique) {
+                return res.status(400).json({ success: false, message: "This password is already in use by another teacher. Please choose a unique password." });
             }
-            res.json({ success: true, message: "Sign up successful! Please log in." });
+            
+            bcrypt.hash(password, 10, (err, hash) => {
+                if (err) return res.status(500).json({ success: false, message: "Error encrypting password" });
+
+                const sql = "INSERT INTO teachers (username, password, role) VALUES (?, ?, 'teacher')";
+                db.query(sql, [username, hash], (err, result) => {
+                    if (err) {
+                        if (err.code === 'ER_DUP_ENTRY') {
+                            return res.status(400).json({ success: false, message: "Username already exists" });
+                        }
+                        return res.status(500).json({ success: false, message: "Database error" });
+                    }
+                    res.json({ success: true, message: "Sign up successful! Please log in." });
+                });
+            });
+        }).catch(err => {
+            return res.status(500).json({ success: false, message: "Server error checking password uniqueness" });
         });
     });
 });
@@ -479,6 +537,7 @@ app.put("/api/settings/invite-code", requireAuth, (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log("Server running at http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });
