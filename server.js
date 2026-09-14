@@ -5,6 +5,25 @@ const path = require("path");
 const fs = require("fs");
 const db = require("./db");
 
+const COURSE_MAPPING = {
+    'cs': 'computer science',
+    'eng': 'English',
+    'sci': 'science',
+    'eco': 'economics',
+    'math': 'mathematics'
+};
+const ALLOWED_COURSES = ['computer science', 'English', 'science', 'economics', 'mathematics'];
+
+function processCourse(inputCourse) {
+    if (!inputCourse) return null;
+    const lower = inputCourse.toLowerCase().trim();
+    const mapped = COURSE_MAPPING[lower] || lower;
+    if (ALLOWED_COURSES.map(c => c.toLowerCase()).includes(mapped.toLowerCase())) {
+        return ALLOWED_COURSES.find(c => c.toLowerCase() === mapped.toLowerCase());
+    }
+    return null;
+}
+
 const app = express();
 
 const uploadsDir = path.join(__dirname, "public", "uploads");
@@ -79,15 +98,28 @@ app.post("/students", requireAuth, upload.single('photo'), (req, res) => {
     const { id, name, age, course, email } = req.body;
     const photo = req.file ? `/uploads/${req.file.filename}` : null;
 
+    const numAge = parseInt(age, 10);
+    if (isNaN(numAge) || numAge < 16 || numAge > 25) {
+        return res.status(400).json({ success: false, message: "Age must be between 16 and 25" });
+    }
+
+    const finalCourse = processCourse(course);
+    if (!finalCourse) {
+        return res.status(400).json({ success: false, message: "Invalid course. Allowed courses: computer science, English, science, economics, mathematics." });
+    }
+
     const sql = `
         INSERT INTO students (id, name, age, course, email, photo)
         VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(sql, [id, name, age, course, email, photo], (err, result) => {
+    db.query(sql, [id, name, numAge, finalCourse, email, photo], (err, result) => {
 
         if (err) {
             console.log(err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ success: false, message: "This Student ID or Email is already registered" });
+            }
 
             return res.status(500).json({
                 success: false,
@@ -103,7 +135,51 @@ app.post("/students", requireAuth, upload.single('photo'), (req, res) => {
     });
 
 });
+app.post("/students/bulk", requireAuth, (req, res) => {
+    const studentsArray = req.body.students;
+    if (!Array.isArray(studentsArray) || studentsArray.length === 0) {
+        return res.status(400).json({ success: false, message: "No student data provided." });
+    }
 
+    const values = [];
+    for (let i = 0; i < studentsArray.length; i++) {
+        let { id, name, age, course, email } = studentsArray[i];
+        
+        const numAge = parseInt(age, 10);
+        if (isNaN(numAge) || numAge < 16 || numAge > 25) {
+            continue;
+        }
+        
+        const finalCourse = processCourse(course);
+        if (!finalCourse) {
+            continue;
+        }
+        
+        values.push([id, name, numAge, finalCourse, email, null]);
+    }
+
+    if (values.length === 0) {
+        return res.status(400).json({ success: false, message: "No valid student records found to import." });
+    }
+
+    const sql = `
+        INSERT IGNORE INTO students (id, name, age, course, email, photo)
+        VALUES ?
+    `;
+
+    db.query(sql, [values], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ success: false, message: "Database error during bulk import." });
+        }
+
+        res.json({
+            success: true,
+            message: `Successfully imported ${result.affectedRows} students. ${values.length - result.affectedRows} skipped (duplicates).`,
+            importedCount: result.affectedRows
+        });
+    });
+});
 
 
 app.get("/students", requireAuth, (req, res) => {
@@ -167,8 +243,17 @@ app.put("/students/:id", requireAuth, upload.single('photo'), (req, res) => {
 
     const id = req.params.id;
 
-    const { newId, name, age, course, email } = req.body;
-    const targetId = newId ? newId : id;
+    const { name, age, course, email } = req.body;
+
+    const numAge = parseInt(age, 10);
+    if (isNaN(numAge) || numAge < 16 || numAge > 25) {
+        return res.status(400).json({ success: false, message: "Age must be between 16 and 25" });
+    }
+
+    const finalCourse = processCourse(course);
+    if (!finalCourse) {
+        return res.status(400).json({ success: false, message: "Invalid course. Allowed courses: computer science, English, science, economics, mathematics." });
+    }
 
     let sql;
     let params;
@@ -177,23 +262,26 @@ app.put("/students/:id", requireAuth, upload.single('photo'), (req, res) => {
         const photo = `/uploads/${req.file.filename}`;
         sql = `
             UPDATE students
-            SET id=?, name=?, age=?, course=?, email=?, photo=?
+            SET name=?, age=?, course=?, email=?, photo=?
             WHERE id=?
         `;
-        params = [targetId, name, age, course, email, photo, id];
+        params = [name, numAge, finalCourse, email, photo, id];
     } else {
         sql = `
             UPDATE students
-            SET id=?, name=?, age=?, course=?, email=?
+            SET name=?, age=?, course=?, email=?
             WHERE id=?
         `;
-        params = [targetId, name, age, course, email, id];
+        params = [name, numAge, finalCourse, email, id];
     }
 
     db.query(sql, params, (err, result) => {
 
         if (err) {
             console.log(err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ success: false, message: "This Email is already registered" });
+            }
 
             return res.status(500).json({
                 success: false,
@@ -255,9 +343,25 @@ app.delete("/students/:id", requireAuth, (req, res) => {
 
 
 
+app.get("/api/teachers", requireAuth, (req, res) => {
+    let sql = "SELECT id, username, name, age, department, photo, course1, course2, role FROM teachers";
+    
+    if (req.session.role !== 'owner') {
+        sql += " WHERE role = 'teacher'";
+    }
+    
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ success: false, message: "Failed to fetch teachers" });
+        }
+        res.json({ success: true, teachers: result });
+    });
+});
+
 app.get("/api/teacher/profile", requireAuth, (req, res) => {
     const username = req.session.username;
-    const sql = "SELECT id, username, name, age, department, photo FROM teachers WHERE username = ?";
+    const sql = "SELECT id, username, name, age, department, photo, course1, course2 FROM teachers WHERE username = ?";
     db.query(sql, [username], (err, result) => {
         if (err || result.length === 0) {
             return res.status(500).json({ success: false, message: "Error fetching profile" });
@@ -268,12 +372,12 @@ app.get("/api/teacher/profile", requireAuth, (req, res) => {
 
 app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) => {
     const username = req.session.username;
-    const { newUsername, name, age, department, newPassword } = req.body;
+    const { newUsername, name, age, department, newPassword, course1, course2 } = req.body;
     const targetUsername = newUsername || username;
     
     let sql, params;
-    let baseSql = "UPDATE teachers SET username=?, name=?, age=?, department=?";
-    let baseParams = [targetUsername, name, age, department];
+    let baseSql = "UPDATE teachers SET username=?, name=?, age=?, department=?, course1=?, course2=?";
+    let baseParams = [targetUsername, name, age, department, course1 || null, course2 || null];
 
     if (newPassword) {
         baseSql += ", password=?";

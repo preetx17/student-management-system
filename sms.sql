@@ -31,6 +31,10 @@ select * from teachers;
 use sms;
 show tables;
 select * from teachers;
+use sms;
+show tables;
+select * from students;
+
 
 
 

@@ -13,23 +13,39 @@
 <div class="dashboard-container">
     <!-- LEFT SIDE: STUDENT DASHBOARD -->
     <div class="left-panel">
-        <div class="panel-header">
-            <h2><i class="fa-solid fa-user-graduate"></i> Student Dashboard</h2>
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2><i class="fa-solid fa-graduation-cap"></i> Academy Hub</h2>
         </div>
+        
+        <div class="left-nav" style="margin-bottom: 20px; display: flex; gap: 15px;">
+            <button class="nav-btn active" data-view="allStudentsView" style="display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-users"></i> All Students</button>
+            <button class="nav-btn" data-view="coursesView" style="display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-book-open"></i> Courses</button>
+            <button class="nav-btn" data-view="teachersView" style="display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chalkboard-user"></i> Teachers</button>
+        </div>
+        
+        <!-- ALL STUDENTS VIEW -->
+        <div id="allStudentsView" class="view-section active">
         
         <div class="stats-cards">
             <div class="card">
-                <h3>Total Students</h3>
+                <h3 style="display: flex; justify-content: center; align-items: center; gap: 10px;"><i class="fa-solid fa-user-graduate" style="color: #3b82f6;"></i> Total Students</h3>
                 <p id="totalStudents">0</p>
             </div>
             <div class="card">
-                <h3>Total Courses</h3>
+                <h3 style="display: flex; justify-content: center; align-items: center; gap: 10px;"><i class="fa-solid fa-book" style="color: #3b82f6;"></i> Total Courses</h3>
                 <p id="totalCourses">0</p>
             </div>
         </div>
 
         <div class="student-list-container">
-            <h3><i class="fa-solid fa-users"></i> Student List</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 0;"><i class="fa-solid fa-users-line" style="color:#3b82f6;"></i> Student List</h3>
+                <div style="display: flex; gap: 10px;">
+                    <input type="file" id="importCsvInput" accept=".csv" style="display: none;">
+                    <button id="importCsvBtn" style="background: #f1f5f9; color: #475569; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;"><i class="fa-solid fa-upload"></i> Import</button>
+                    <button id="exportCsvBtn" style="background: #e0f2fe; color: #0284c7; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;"><i class="fa-solid fa-download"></i> Export</button>
+                </div>
+            </div>
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -48,6 +64,24 @@
                 </table>
             </div>
         </div>
+        </div> <!-- End allStudentsView -->
+
+        <!-- COURSES VIEW -->
+        <div id="coursesView" class="view-section hide">
+            <h3 style="margin-bottom: 20px; color: #1e293b; font-size: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-layer-group" style="color:#3b82f6;"></i> Course Overview</h3>
+            <div id="coursesContainer" class="courses-accordion">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <!-- TEACHERS VIEW -->
+        <div id="teachersView" class="view-section hide">
+            <h3 style="margin-bottom: 20px; color: #1e293b; font-size: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-users-viewfinder" style="color:#3b82f6;"></i> Teacher Roster</h3>
+            <div id="teachersContainer" class="teachers-grid">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
     </div>
 
     <!-- RIGHT SIDE: TEACHER DASHBOARD -->
@@ -99,7 +133,7 @@
                     </div>
                     <div class="input-group">
                         <i class="fa-solid fa-calendar-days"></i>
-                        <input type="number" id="studentAge" placeholder="Age" required>
+                        <input type="number" id="studentAge" placeholder="Age" min="16" max="25" required>
                     </div>
                     <div class="input-group">
                         <i class="fa-solid fa-book"></i>
@@ -129,16 +163,12 @@
                 </div>
                 <form id="updateForm" class="hide">
                     <div class="input-group">
-                        <i class="fa-solid fa-id-badge"></i>
-                        <input type="text" id="updateNewId" placeholder="New Student ID" required>
-                    </div>
-                    <div class="input-group">
                         <i class="fa-solid fa-user"></i>
                         <input type="text" id="updateName" placeholder="Student Name" required>
                     </div>
                     <div class="input-group">
                         <i class="fa-solid fa-calendar-days"></i>
-                        <input type="number" id="updateAge" placeholder="Age" required>
+                        <input type="number" id="updateAge" placeholder="Age" min="16" max="25" required>
                     </div>
                     <div class="input-group">
                         <i class="fa-solid fa-book"></i>
@@ -162,7 +192,7 @@
                 <h3>Search Student</h3>
                 <div class="input-group">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search by ID or Name">
+                    <input type="text" id="searchInput" placeholder="Search">
                 </div>
                 <div id="searchResult" class="hide"></div>
             </section>
@@ -206,6 +236,28 @@
                 <i class="fa-solid fa-building"></i>
                 <input type="text" id="profDept" placeholder="Department" required>
             </div>
+            <div class="input-group">
+                <i class="fa-solid fa-book"></i>
+                <select id="profCourse1">
+                    <option value="">Select Course 1 (Optional)</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="English">English</option>
+                    <option value="Science">Science</option>
+                    <option value="Economics">Economics</option>
+                    <option value="Mathematics">Mathematics</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-book"></i>
+                <select id="profCourse2">
+                    <option value="">Select Course 2 (Optional)</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="English">English</option>
+                    <option value="Science">Science</option>
+                    <option value="Economics">Economics</option>
+                    <option value="Mathematics">Mathematics</option>
+                </select>
+            </div>
             <div class="input-group file-input-group">
                 <i class="fa-solid fa-image"></i>
                 <input type="file" id="profPhoto" accept="image/*">
@@ -232,6 +284,16 @@
     </div>
 </div>
 
+<!-- TEACHER DETAILS MODAL -->
+<div class="modal-overlay hide" id="teacherDetailsModal">
+    <div class="modal-content" style="text-align: center;">
+        <button class="modal-close" id="closeTeacherModal"><i class="fa-solid fa-xmark"></i></button>
+        <div id="teacherDetailsContent">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+</div>
+
 <!-- ADMIN SETTINGS MODAL -->
 <div class="modal-overlay hide" id="adminSettingsModal">
     <div class="modal-content">
@@ -247,6 +309,9 @@
         </form>
     </div>
 </div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer" class="toast-container"></div>
 
 <script src="sms.3.js"></script>
 
