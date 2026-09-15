@@ -1,3 +1,21 @@
+// Global Fetch Interceptor to gracefully handle session expiration
+const originalFetch = window.fetch;
+window.fetch = async function(...args) {
+    const response = await originalFetch.apply(this, args);
+    if (response.status === 401) {
+        const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url ? args[0].url : '');
+        if (!url.includes("/login") && !url.includes("/signup") && !url.includes("/check-auth")) {
+            if (typeof showToast === 'function') {
+                showToast("Session expired. Please log in again.", "error");
+            }
+            setTimeout(() => {
+                window.location.href = "login.sms.html";
+            }, 1200);
+        }
+    }
+    return response;
+};
+
 const addForm = document.getElementById("addForm");
 const updateForm = document.getElementById("updateForm");
 const searchInput = document.getElementById("searchInput");
