@@ -474,14 +474,14 @@ app.get("/api/teacher/profile", requireAuth, (req, res) => {
 app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) => {
     const username = req.session.username;
     const { newUsername, name, age, department, newPassword, course1, course2 } = req.body;
-    const targetUsername = newUsername || username;
+    const targetUsername = (newUsername && newUsername.trim()) ? newUsername.trim() : username;
+    const parsedAge = (age !== undefined && age !== "" && !isNaN(parseInt(age, 10))) ? parseInt(age, 10) : null;
     
     const updateProfile = async () => {
-        let sql, params;
         let baseSql = "UPDATE teachers SET username=?, name=?, age=?, department=?, course1=?, course2=?";
-        let baseParams = [targetUsername, name, age, department, course1 || null, course2 || null];
+        let baseParams = [targetUsername, (name && name.trim()) ? name.trim() : null, parsedAge, (department && department.trim()) ? department.trim() : null, course1 || null, course2 || null];
 
-        if (newPassword) {
+        if (newPassword && newPassword.trim()) {
             const isUnique = await isPasswordUnique(newPassword);
             if (!isUnique) {
                 return res.status(400).json({ success: false, message: "This password is already in use by another teacher. Please choose a unique password." });
@@ -502,16 +502,13 @@ app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) 
         baseSql += " WHERE username=?";
         baseParams.push(username);
 
-        sql = baseSql;
-        params = baseParams;
-
-        db.query(sql, params, (err, result) => {
+        db.query(baseSql, baseParams, (err, result) => {
             if (err) {
-                console.log(err);
+                console.error("Profile update error:", err);
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ success: false, message: "Username already exists" });
                 }
-                return res.status(500).json({ success: false, message: "Error updating profile" });
+                return res.status(500).json({ success: false, message: err.sqlMessage || "Error updating profile" });
             }
             if (targetUsername !== username) {
                 req.session.username = targetUsername;
@@ -525,7 +522,7 @@ app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) 
     };
     
     updateProfile().catch(err => {
-        console.error(err);
+        console.error("Profile update error:", err);
         res.status(500).json({ success: false, message: "Server error" });
     });
 });
