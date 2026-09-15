@@ -30,8 +30,20 @@ signupForm.addEventListener("submit", function(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
-            window.location.href = "login.sms.html";
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Welcome!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = "login.sms.html";
+                });
+            } else {
+                alert(data.message);
+                window.location.href = "login.sms.html";
+            }
         } else {
             errorMsg.innerText = data.message;
         }

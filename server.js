@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const session = require("express-session");
 const sanitizeHtml = require("sanitize-html");
 const bcrypt = require("bcrypt");
@@ -42,7 +44,21 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
+
+app.use(helmet({
+    contentSecurityPolicy: false // Disabled so inline scripts and external CDNs don't break
+}));
 
 app.use(express.json());
 
@@ -109,6 +125,13 @@ async function isPasswordUnique(plainPassword) {
         });
     });
 }
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 login requests per window
+    message: { success: false, message: "Too many login attempts, please try again after 15 minutes" }
+});
+app.use("/login", loginLimiter);
 
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
@@ -337,6 +360,13 @@ app.put("/students/:id", requireAuth, upload.single('photo'), (req, res) => {
             WHERE id=?
         `;
         params = [name, numAge, finalCourse, email, photo, id];
+    } else if (req.body.removePhoto === "true") {
+        sql = `
+            UPDATE students
+            SET name=?, age=?, course=?, email=?, photo=NULL
+            WHERE id=?
+        `;
+        params = [name, numAge, finalCourse, email, id];
     } else {
         sql = `
             UPDATE students
@@ -465,6 +495,8 @@ app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) 
             const photo = `/uploads/${req.file.filename}`;
             baseSql += ", photo=?";
             baseParams.push(photo);
+        } else if (req.body.removePhoto === "true") {
+            baseSql += ", photo=NULL";
         }
 
         baseSql += " WHERE username=?";
@@ -483,8 +515,12 @@ app.put("/api/teacher/profile", requireAuth, upload.single('photo'), (req, res) 
             }
             if (targetUsername !== username) {
                 req.session.username = targetUsername;
+                req.session.save((err) => {
+                    res.json({ success: true, message: "Profile updated successfully!" });
+                });
+            } else {
+                res.json({ success: true, message: "Profile updated successfully!" });
             }
-            res.json({ success: true, message: "Profile updated successfully!" });
         });
     };
     

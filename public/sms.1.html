@@ -154,13 +154,11 @@
             <!-- UPDATE SECTION -->
             <section id="updateSection" class="action-section hide">
                 <h3>Update Student</h3>
-                <div class="search-bar">
-                    <div class="input-group">
-                        <i class="fa-solid fa-id-card"></i>
-                        <input type="text" id="updateId" placeholder="Enter Student ID">
-                    </div>
-                    <button id="findStudent" class="btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Find</button>
+                <div class="input-group">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="updateId" placeholder="Enter Student ID">
                 </div>
+                <button id="findStudent" class="btn-secondary hide" style="margin-bottom: 25px;"><i class="fa-solid fa-magnifying-glass"></i> Find</button>
                 <form id="updateForm" class="hide">
                     <div class="input-group">
                         <i class="fa-solid fa-user"></i>
@@ -181,6 +179,12 @@
                     <div class="input-group file-input-group">
                         <i class="fa-solid fa-image"></i>
                         <input type="file" id="updatePhoto" accept="image/*">
+                    </div>
+                    <div style="margin-bottom: 20px; text-align: left; padding-left: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #64748b; cursor: pointer;">
+                            <input type="checkbox" id="removeStudentPhotoCheck" style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
+                            Remove current photo
+                        </label>
                     </div>
                     <small style="color:#94a3b8; display:block; margin-bottom:15px; margin-left:10px;">Leave empty to keep current photo.</small>
                     <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Update Student</button>
@@ -222,7 +226,7 @@
             </div>
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" id="profPassword" placeholder="New Password (leave blank to keep current)">
+                <input type="password" id="profPassword" placeholder="New Password (leave blank to keep current)" autocomplete="new-password">
             </div>
             <div class="input-group">
                 <i class="fa-solid fa-user"></i>
@@ -262,6 +266,12 @@
                 <i class="fa-solid fa-image"></i>
                 <input type="file" id="profPhoto" accept="image/*">
             </div>
+            <div style="margin-bottom: 20px; text-align: left; padding-left: 10px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #64748b; cursor: pointer;">
+                    <input type="checkbox" id="removePhotoCheck" style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
+                    Remove current photo
+                </label>
+            </div>
             <button type="submit" class="btn-primary">Save Changes</button>
         </form>
     </div>
@@ -277,8 +287,8 @@
         <div id="addStudentImageSection" class="hide" style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: left;">
             <h4 style="margin-bottom: 10px; color: #334155;">Quick Add Image</h4>
             <div class="file-input-group" style="display: flex; gap: 10px;">
-                <input type="file" id="quickAddPhoto" accept="image/*" style="flex: 1; border: 1px solid #e2e8f0; padding: 5px; border-radius: 8px;">
-                <button id="quickAddPhotoBtn" class="btn-primary" style="margin-top: 0; width: auto; padding: 8px 20px;">Upload</button>
+                <input type="file" id="quickAddPhoto" accept="image/*" style="flex: 1; min-width: 0; border: 1px solid #e2e8f0; padding: 5px; border-radius: 8px;">
+                <button id="quickAddPhotoBtn" class="btn-primary" style="margin-top: 0; width: auto !important; flex-shrink: 0; padding: 8px 20px;">Upload</button>
             </div>
         </div>
     </div>
@@ -313,7 +323,8 @@
 <!-- TOAST CONTAINER -->
 <div id="toastContainer" class="toast-container"></div>
 
-<script src="sms.3.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="sms.3.js?v=2"></script>
 
 </body>
 </html>

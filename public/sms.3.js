@@ -51,6 +51,13 @@ function escapeHTML(str) {
     );
 }
 let currentViewingStudentId = null;
+let currentUpdatingStudentId = null;
+
+function getAvatarUrl(photo, name, size = 50) {
+    if (photo) return escapeHTML(photo);
+    const encodedName = encodeURIComponent(name || "User");
+    return `https://ui-avatars.com/api/?name=${encodedName}&background=random&color=fff&size=${size}`;
+}
 
 const COURSE_MAPPING = {
     'cs': 'Computer Science',
@@ -61,20 +68,19 @@ const COURSE_MAPPING = {
 };
 
 function showToast(message, type = 'success') {
-    const container = document.getElementById("toastContainer");
-    if (!container) return;
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    const icon = type === 'success' ? '<i class="fa-solid fa-check-circle"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
-    toast.innerHTML = `${icon} <span>${message}</span>`;
-    container.appendChild(toast);
-    
-    setTimeout(() => toast.classList.add("show"), 10);
-    
-    setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            icon: type === 'error' ? 'error' : 'success',
+            title: message
+        });
+    } else {
+        alert(message);
+    }
 }
 
 // Authentication & Profile Check
@@ -105,7 +111,7 @@ function loadTeacherProfile() {
         .then(data => {
             if (data.success && data.profile) {
                 const p = data.profile;
-                const photoSrc = p.photo ? p.photo : "https://via.placeholder.com/60";
+                const photoSrc = getAvatarUrl(p.photo, p.name || p.username, 60);
                 
                 topTeacherPhoto.src = photoSrc;
                 dropdownTeacherPhoto.src = photoSrc;
@@ -162,7 +168,11 @@ editProfileForm.addEventListener("submit", (e) => {
     formData.append("course2", document.getElementById("profCourse2").value);
     
     const photoFile = document.getElementById("profPhoto").files[0];
-    if (photoFile) formData.append("photo", photoFile);
+    if (photoFile) {
+        formData.append("photo", photoFile);
+    } else if (document.getElementById("removePhotoCheck").checked) {
+        formData.append("removePhoto", "true");
+    }
 
     const submitBtn = editProfileForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
@@ -206,7 +216,7 @@ adminSettingsBtn.addEventListener("click", () => {
             currentInviteCode.value = data.inviteCode;
             adminSettingsModal.classList.remove("hide");
         } else {
-            alert("Unauthorized to view invite code.");
+            showToast("Unauthorized to view invite code.", "error");
         }
     });
 });
@@ -225,7 +235,7 @@ adminSettingsForm.addEventListener("submit", (e) => {
     })
     .then(res => res.json())
     .then(data => {
-        alert(data.message);
+        showToast(data.message, data.success ? "success" : "error");
         if(data.success) {
             adminSettingsModal.classList.add("hide");
         }
@@ -243,6 +253,29 @@ tabBtns.forEach(btn => {
         tabBtns.forEach(t => t.classList.remove("active"));
         actionSections.forEach(s => s.classList.add("hide"));
         btn.classList.add("active");
+        
+        // Reset forms and search inputs when switching tabs
+        if(typeof addForm !== 'undefined') addForm.reset();
+        
+        const updateIdInput = document.getElementById("updateId");
+        if(updateIdInput) updateIdInput.value = "";
+        if(typeof updateForm !== 'undefined') {
+            updateForm.reset();
+            updateForm.classList.add("hide");
+            currentUpdatingStudentId = null;
+        }
+        
+        const searchInputBox = document.getElementById("searchInput");
+        const searchResultBox = document.getElementById("searchResult");
+        if(searchInputBox) searchInputBox.value = "";
+        if(searchResultBox) {
+            searchResultBox.innerHTML = "";
+            searchResultBox.classList.add("hide");
+        }
+        
+        const deleteIdInput = document.getElementById("deleteId");
+        if(deleteIdInput) deleteIdInput.value = "";
+
         const targetId = btn.getAttribute("data-target");
         document.getElementById(targetId).classList.remove("hide");
     });
@@ -274,7 +307,7 @@ function renderStudentTable(){
   tableBody.innerHTML = students.map(student => `
     <tr onclick="openStudentDetails('${escapeHTML(student.id.toString())}')">
       <td>
-        ${student.photo ? `<img src="${escapeHTML(student.photo)}" class="student-photo-img" alt="Photo">` : `<img src="https://via.placeholder.com/40" class="student-photo-img" alt="No Photo">`}
+        <img src="${getAvatarUrl(student.photo, student.name, 40)}" class="student-photo-img" alt="Photo">
       </td>
       <td>${escapeHTML(student.id.toString())}</td>
       <td>${escapeHTML(student.name)}</td>
@@ -304,7 +337,16 @@ function openStudentDetails(id) {
     
     currentViewingStudentId = student.id;
     
-    const photoSrc = student.photo ? student.photo : "https://via.placeholder.com/100";
+    // Clear search input and results when opening a student profile
+    const searchInputBox = document.getElementById("searchInput");
+    const searchResultBox = document.getElementById("searchResult");
+    if (searchInputBox) searchInputBox.value = "";
+    if (searchResultBox) {
+        searchResultBox.innerHTML = "";
+        searchResultBox.classList.add("hide");
+    }
+    
+    const photoSrc = getAvatarUrl(student.photo, student.name, 100);
     
     studentDetailsContent.innerHTML = `
         <img src="${photoSrc}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6; margin-bottom: 15px;">
@@ -338,7 +380,7 @@ quickAddPhotoBtn.addEventListener("click", () => {
     
     const fileInput = document.getElementById("quickAddPhoto");
     if (!fileInput.files[0]) {
-        alert("Please select an image first.");
+        showToast("Please select an image first.", "error");
         return;
     }
     
@@ -351,7 +393,7 @@ quickAddPhotoBtn.addEventListener("click", () => {
     })
     .then(res => res.json())
     .then(data => {
-        alert(data.message);
+        showToast(data.message, data.success ? "success" : "error");
         if(data.success) {
             fileInput.value = "";
             loadStudents();
@@ -364,7 +406,7 @@ quickAddPhotoBtn.addEventListener("click", () => {
 
 
 // Autocomplete Setup
-function setupAutocomplete(inputId) {
+function setupAutocomplete(inputId, buttonId) {
     const input = document.getElementById(inputId);
     if (!input) return;
     
@@ -388,7 +430,10 @@ function setupAutocomplete(inputId) {
             
             const matches = students.filter(s => 
                 s.id.toString().toLowerCase().includes(val) || 
-                s.name.toLowerCase().includes(val)
+                s.name.toLowerCase().includes(val) ||
+                s.course.toLowerCase().includes(val) ||
+                s.email.toLowerCase().includes(val) ||
+                s.age.toString().includes(val)
             );
             
             if (matches.length > 0) {
@@ -400,6 +445,10 @@ function setupAutocomplete(inputId) {
                         e.preventDefault();
                         input.value = s.id;
                         list.classList.add("hide");
+                        if(buttonId) {
+                            const btn = document.getElementById(buttonId);
+                            if(btn) btn.click();
+                        }
                     });
                     list.appendChild(item);
                 });
@@ -432,8 +481,8 @@ function setupCourseExpansion(inputId) {
     });
 }
 
-setupAutocomplete("updateId");
-setupAutocomplete("deleteId");
+setupAutocomplete("updateId", "findStudent");
+setupAutocomplete("deleteId", "deleteBtn");
 setupCourseExpansion("studentCourse");
 setupCourseExpansion("updateCourse");
 
@@ -508,7 +557,7 @@ searchInput.addEventListener("input", function () {
                 ${matches.map(matched => `
                     <div onclick="openStudentDetails('${matched.id}')" style="cursor: pointer; background: #ffffff; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         <div style="display: flex; gap: 15px; align-items: center;">
-                            ${matched.photo ? `<img src="${matched.photo}" alt="Photo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">` : `<img src="https://via.placeholder.com/50" alt="No Photo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">`}
+                            <img src="${getAvatarUrl(matched.photo, matched.name, 50)}" alt="Photo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
                             <div>
                                 <p style="margin-bottom: 3px; color: #64748b; font-size: 13px;"><b>ID:</b> ${matched.id}</p>
                                 <p style="margin-bottom: 3px; color: #1e293b; font-size: 15px; font-weight: 600;">${matched.name}</p>
@@ -532,39 +581,67 @@ searchInput.addEventListener("input", function () {
 });
 
 // Delete Student
+document.getElementById("deleteId").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        deleteBtn.click();
+    }
+});
+
 deleteBtn.addEventListener("click", function () {
     const id = document.getElementById("deleteId").value.trim();
     if(!id) return;
     
-    fetch(`/students/${id}`, { method: "DELETE" })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast(data.message, 'success');
-            document.getElementById("deleteId").value = "";
-            loadStudents();
-        } else {
-            showToast(data.message, 'error');
+    Swal.fire({
+        title: "Are you sure?",
+        text: `You are about to permanently delete student ID ${id}. This action cannot be undone!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#94a3b8",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/students/${id}`, { method: "DELETE" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    document.getElementById("deleteId").value = "";
+                    loadStudents();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast("Delete Failed", 'error');
+                console.log(error);
+            });
         }
-    })
-    .catch(error => {
-        showToast("Delete Failed", 'error');
-        console.log(error);
     });
 });
 
 // Find Student for Update
+document.getElementById("updateId").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        findStudentBtn.click();
+    }
+});
+
 findStudentBtn.addEventListener("click", function () {
     const id = document.getElementById("updateId").value.trim();
     if(!id) return;
     
     const student = students.find(s => s.id.toString() === id);
     if(student) {
+        currentUpdatingStudentId = student.id;
         document.getElementById("updateName").value = student.name;
         document.getElementById("updateAge").value = student.age;
         document.getElementById("updateCourse").value = student.course;
         document.getElementById("updateEmail").value = student.email;
         updateForm.classList.remove("hide");
+        document.getElementById("updateId").value = "";
     } else {
         showToast("Student Not Found in local data", 'error');
         updateForm.classList.add("hide");
@@ -574,7 +651,8 @@ findStudentBtn.addEventListener("click", function () {
 // Update Student
 updateForm.addEventListener("submit", function (event) {
     event.preventDefault();
-    const id = document.getElementById("updateId").value.trim();
+    const id = currentUpdatingStudentId;
+    if (!id) return;
     const formData = new FormData();
     
     formData.append("name", document.getElementById("updateName").value.trim());
@@ -585,6 +663,8 @@ updateForm.addEventListener("submit", function (event) {
     const photoFile = document.getElementById("updatePhoto").files[0];
     if (photoFile) {
         formData.append("photo", photoFile);
+    } else if (document.getElementById("removeStudentPhotoCheck").checked) {
+        formData.append("removePhoto", "true");
     }
 
     const submitBtn = updateForm.querySelector('button[type="submit"]');
@@ -655,7 +735,7 @@ function renderTeacherRoster() {
     }
     
     container.innerHTML = allTeachers.map(t => {
-        const photoSrc = t.photo ? t.photo : "https://via.placeholder.com/80";
+        const photoSrc = getAvatarUrl(t.photo, t.name || t.username, 80);
         let coursesHtml = "";
         if (t.course1) coursesHtml += `<span class="course-tag">${t.course1}</span>`;
         if (t.course2) coursesHtml += `<span class="course-tag">${t.course2}</span>`;
@@ -696,7 +776,7 @@ function renderCourseView() {
         
         let teacherHtml = teachers.map(t => `
             <div class="mini-teacher-card" onclick="openTeacherDetails('${t.id}')" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                <img src="${t.photo ? t.photo : 'https://via.placeholder.com/30'}">
+                <img src="${getAvatarUrl(t.photo, t.name || t.username, 30)}">
                 <span>${t.name || t.username}</span>
             </div>
         `).join("");
@@ -806,7 +886,7 @@ function openTeacherDetails(id) {
     const teacher = allTeachers.find(t => t.id.toString() === id.toString());
     if (!teacher) return;
     
-    const photoSrc = teacher.photo ? teacher.photo : "https://via.placeholder.com/100";
+    const photoSrc = getAvatarUrl(teacher.photo, teacher.name || teacher.username, 100);
     
     let coursesHtml = "";
     if (teacher.course1) coursesHtml += `<span class="course-tag" style="background:#e0f2fe;color:#0369a1;padding:4px 10px;border-radius:20px;font-size:12px;margin:2px;display:inline-block;font-weight:600;">${teacher.course1}</span>`;
