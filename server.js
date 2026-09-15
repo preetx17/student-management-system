@@ -103,7 +103,8 @@ app.use(session({
     cookie: { 
         secure: process.env.NODE_ENV === 'production', // True if on HTTPS
         httpOnly: true, // Prevents client-side JS from reading the cookie
-        sameSite: 'lax' // CSRF protection
+        sameSite: 'lax', // CSRF protection
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours session duration
     }
 }));
 app.use(express.static("public"));
