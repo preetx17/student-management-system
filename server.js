@@ -151,7 +151,7 @@ app.post("/login", (req, res) => {
 
             if (match) {
                 req.session.teacherLoggedIn = true;
-                req.session.username = username;
+                req.session.username = result[0].username;
                 req.session.role = result[0].role;
                 return res.json({ success: true });
             } else {
@@ -469,6 +469,31 @@ app.get("/api/teacher/profile", requireAuth, (req, res) => {
             return res.status(500).json({ success: false, message: "Error fetching profile" });
         }
         res.json({ success: true, profile: result[0] });
+    });
+});
+
+app.delete("/api/teachers/:id", requireAuth, (req, res) => {
+    if (req.session.role !== 'owner') {
+        return res.status(403).json({ success: false, message: "Forbidden: Owners only" });
+    }
+    
+    const id = req.params.id;
+    
+    db.query("SELECT role FROM teachers WHERE id = ?", [id], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(500).json({ success: false, message: "Teacher not found" });
+        }
+        
+        if (results[0].role === 'owner') {
+            return res.status(403).json({ success: false, message: "Cannot delete the owner account" });
+        }
+        
+        db.query("DELETE FROM teachers WHERE id = ?", [id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ success: false, message: "Failed to delete teacher" });
+            }
+            res.json({ success: true, message: "Teacher deleted successfully" });
+        });
     });
 });
 

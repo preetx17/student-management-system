@@ -101,6 +101,8 @@ function showToast(message, type = 'success') {
     }
 }
 
+let isOwner = false;
+
 // Authentication & Profile Check
 function checkAuthAndRole() {
     fetch("/check-auth")
@@ -111,6 +113,7 @@ function checkAuthAndRole() {
         .then(data => {
             if (data.authenticated) {
                 if (data.role === 'owner') {
+                    isOwner = true;
                     adminSettingsBtn.classList.remove("hide");
                 }
             } else {
@@ -921,9 +924,50 @@ function openTeacherDetails(id) {
             <p style="margin-bottom: 8px; color: #334155;"><b>Age:</b> ${teacher.age || "N/A"}</p>
             <p style="margin-bottom: 8px; color: #334155;"><b>Courses:</b> <br><div style="margin-top:5px;">${coursesHtml}</div></p>
         </div>
+        ${isOwner && teacher.role !== 'owner' ? `<button onclick="deleteTeacher('${teacher.id}')" style="margin-top: 20px; background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;"><i class="fa-solid fa-trash"></i> Delete Teacher</button>` : ''}
     `;
     
     teacherDetailsModal.classList.remove("hide");
+}
+
+window.deleteTeacher = function(id) {
+    if(typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to permanently delete this teacher. This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#94a3b8",
+            confirmButtonText: "Yes, delete them!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                executeDeleteTeacher(id);
+            }
+        });
+    } else {
+        if(confirm("Are you sure you want to delete this teacher?")) {
+            executeDeleteTeacher(id);
+        }
+    }
+};
+
+function executeDeleteTeacher(id) {
+    fetch(`/api/teachers/${id}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, "success");
+            teacherDetailsModal.classList.add("hide");
+            loadTeachers();
+        } else {
+            showToast(data.message, "error");
+        }
+    })
+    .catch(err => {
+        showToast("Failed to delete teacher", "error");
+        console.error(err);
+    });
 }
 
 if (closeTeacherModal) {
