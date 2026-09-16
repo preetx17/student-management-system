@@ -32,12 +32,12 @@ def get_font(size, bold=False):
                 pass
     return ImageFont.load_default()
 
-font_title = get_font(52, bold=True)
-font_subtitle = get_font(32, bold=False)
-font_card_h = get_font(30, bold=True)
-font_body = get_font(24, bold=False)
-font_body_bold = get_font(24, bold=True)
-font_badge = get_font(20, bold=True)
+font_title = get_font(100, bold=True)
+font_subtitle = get_font(55, bold=False)
+font_card_h = get_font(60, bold=True)
+font_body = get_font(45, bold=False)
+font_body_bold = get_font(45, bold=True)
+font_badge = get_font(35, bold=True)
 
 def draw_card(draw, box, fill=CARD_BG, outline=BORDER_CYAN, radius=30, width=5):
     draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
@@ -55,14 +55,14 @@ def generate_er_diagram():
     im = Image.new("RGB", (2400, 1350), BG_COLOR)
     draw = ImageDraw.Draw(im)
 
-    draw.text((1200, 60), "ER DIAGRAM", fill=TEXT_WHITE, font=font_title, anchor="mt")
-    draw.text((1200, 130), "Core Database Entities", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
+    draw.text((1200, 40), "ER DIAGRAM", fill=TEXT_WHITE, font=font_title, anchor="mt")
+    draw.text((1200, 160), "Core Database Entities", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
 
     # Table 1: TEACHERS
-    t_box = (150, 250, 750, 1150)
+    t_box = (100, 250, 780, 1320)
     draw_card(draw, t_box, CARD_BG, BORDER_CYAN)
-    draw.rounded_rectangle((150, 250, 750, 360), radius=30, fill=(14, 116, 144))
-    draw.text((450, 305), "TEACHERS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw.rounded_rectangle((100, 250, 780, 360), radius=30, fill=(14, 116, 144))
+    draw.text((440, 305), "TEACHERS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
     
     t_fields = [
         ("id", "INT", "PK", BORDER_AMBER),
@@ -71,60 +71,61 @@ def generate_er_diagram():
         ("role", "ENUM", "ROLE", BORDER_ROSE),
         ("name", "VARCHAR", "FLD", (71, 85, 105)),
         ("department", "VARCHAR", "FLD", (71, 85, 105)),
+        ("course1", "VARCHAR", "REL", BORDER_EMERALD),
+        ("course2", "VARCHAR", "REL", BORDER_EMERALD),
     ]
     
-    y = 420
+    y = 400
     for name, dtype, badge_txt, badge_bg in t_fields:
-        draw.rounded_rectangle((200, y, 700, y + 80), radius=16, fill=(30, 41, 59))
-        draw_badge(draw, (220, y + 15, 300, y + 65), badge_txt, badge_bg, TEXT_WHITE if badge_bg != BORDER_AMBER and badge_bg != BORDER_CYAN else TEXT_DARK)
-        draw.text((330, y + 25), name, fill=TEXT_WHITE, font=font_body_bold)
-        draw.text((670, y + 25), dtype, fill=TEXT_MUTED, font=font_body, anchor="ra")
+        draw.rounded_rectangle((120, y, 760, y + 90), radius=16, fill=(30, 41, 59))
+        draw_badge(draw, (140, y + 15, 240, y + 75), badge_txt, badge_bg, TEXT_WHITE if badge_bg != BORDER_AMBER and badge_bg != BORDER_CYAN else TEXT_DARK)
+        draw.text((260, y + 45), name, fill=TEXT_WHITE, font=font_body_bold, anchor="lm")
+        draw.text((740, y + 45), dtype, fill=TEXT_MUTED, font=font_body, anchor="rm")
         y += 110
 
     # Table 2: STUDENTS
-    s_box = (900, 250, 1500, 950)
+    s_box = (850, 250, 1530, 1020)
     draw_card(draw, s_box, CARD_BG, BORDER_EMERALD)
-    draw.rounded_rectangle((900, 250, 1500, 360), radius=30, fill=(4, 120, 87))
-    draw.text((1200, 305), "STUDENTS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw.rounded_rectangle((850, 250, 1530, 360), radius=30, fill=(4, 120, 87))
+    draw.text((1190, 305), "STUDENTS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     s_fields = [
         ("id", "INT", "PK", BORDER_AMBER),
         ("name", "VARCHAR", "FLD", (71, 85, 105)),
         ("age", "INT", "CHK", BORDER_ROSE),
+        ("course", "VARCHAR", "REL", BORDER_EMERALD),
         ("email", "VARCHAR", "UK", BORDER_CYAN),
     ]
     
-    y = 420
+    y = 400
     for name, dtype, badge_txt, badge_bg in s_fields:
-        draw.rounded_rectangle((950, y, 1450, y + 80), radius=16, fill=(30, 41, 59))
-        draw_badge(draw, (970, y + 15, 1050, y + 65), badge_txt, badge_bg, TEXT_WHITE if badge_bg != BORDER_AMBER and badge_bg != BORDER_CYAN else TEXT_DARK)
-        draw.text((1080, y + 25), name, fill=TEXT_WHITE, font=font_body_bold)
-        draw.text((1420, y + 25), dtype, fill=TEXT_MUTED, font=font_body, anchor="ra")
+        draw.rounded_rectangle((870, y, 1510, y + 90), radius=16, fill=(30, 41, 59))
+        draw_badge(draw, (890, y + 15, 990, y + 75), badge_txt, badge_bg, TEXT_WHITE if badge_bg != BORDER_AMBER and badge_bg != BORDER_CYAN else TEXT_DARK)
+        draw.text((1010, y + 45), name, fill=TEXT_WHITE, font=font_body_bold, anchor="lm")
+        draw.text((1490, y + 45), dtype, fill=TEXT_MUTED, font=font_body, anchor="rm")
         y += 110
 
     # Table 3: SETTINGS
-    set_box = (1650, 250, 2250, 650)
+    set_box = (1600, 250, 2280, 650)
     draw_card(draw, set_box, CARD_BG, BORDER_AMBER)
-    draw.rounded_rectangle((1650, 250, 2250, 360), radius=30, fill=(180, 83, 9))
-    draw.text((1950, 305), "SETTINGS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw.rounded_rectangle((1600, 250, 2280, 360), radius=30, fill=(180, 83, 9))
+    draw.text((1940, 305), "SETTINGS", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     set_fields = [
         ("key_name", "VARCHAR", "PK", BORDER_AMBER),
         ("key_value", "VARCHAR", "FLD", (71, 85, 105)),
     ]
-    y = 420
+    y = 400
     for name, dtype, badge_txt, badge_bg in set_fields:
-        draw.rounded_rectangle((1700, y, 2200, y + 80), radius=16, fill=(30, 41, 59))
-        draw_badge(draw, (1720, y + 15, 1800, y + 65), badge_txt, badge_bg, TEXT_DARK if badge_bg == BORDER_AMBER else TEXT_WHITE)
-        draw.text((1830, y + 25), name, fill=TEXT_WHITE, font=font_body_bold)
-        draw.text((2170, y + 25), dtype, fill=TEXT_MUTED, font=font_body, anchor="ra")
+        draw.rounded_rectangle((1620, y, 2260, y + 90), radius=16, fill=(30, 41, 59))
+        draw_badge(draw, (1640, y + 15, 1740, y + 75), badge_txt, badge_bg, TEXT_DARK if badge_bg == BORDER_AMBER else TEXT_WHITE)
+        draw.text((1760, y + 45), name, fill=TEXT_WHITE, font=font_body_bold, anchor="lm")
+        draw.text((2240, y + 45), dtype, fill=TEXT_MUTED, font=font_body, anchor="rm")
         y += 110
 
     # Connectors
-    draw.line([(750, 600), (900, 600)], fill=BORDER_CYAN, width=8)
-    draw.polygon([(870, 580), (900, 600), (870, 620)], fill=BORDER_CYAN)
-    draw.rounded_rectangle((780, 560, 870, 640), radius=12, fill=(14, 116, 144))
-    draw.text((825, 600), "1:N", fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
+    draw.line([(780, 600), (850, 600)], fill=BORDER_CYAN, width=12)
+    draw.polygon([(820, 570), (850, 600), (820, 630)], fill=BORDER_CYAN)
 
     im.save(os.path.join(img_dir, "er_diagram.png"), quality=100)
 
@@ -135,30 +136,30 @@ def generate_dfd_l0_diagram():
     im = Image.new("RGB", (2400, 1350), BG_COLOR)
     draw = ImageDraw.Draw(im)
 
-    draw.text((1200, 60), "DFD LEVEL 0", fill=TEXT_WHITE, font=font_title, anchor="mt")
-    draw.text((1200, 130), "Context Diagram", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
+    draw.text((1200, 40), "DFD LEVEL 0", fill=TEXT_WHITE, font=font_title, anchor="mt")
+    draw.text((1200, 160), "Context Diagram", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
 
     # Center Process Bubble
-    center_box = (800, 450, 1600, 900)
-    draw.ellipse(center_box, fill=CARD_BG, outline=BORDER_CYAN, width=8)
+    center_box = (800, 400, 1600, 950)
+    draw.ellipse(center_box, fill=CARD_BG, outline=BORDER_CYAN, width=12)
     draw.text((1200, 620), "SMS SYSTEM", fill=TEXT_WHITE, font=font_title, anchor="mm")
-    draw.text((1200, 700), "API Gateway", fill=BORDER_EMERALD, font=font_subtitle, anchor="mm")
+    draw.text((1200, 720), "API Gateway", fill=BORDER_EMERALD, font=font_subtitle, anchor="mm")
 
     # Left Entities
-    draw_card(draw, (150, 400, 550, 600), CARD_BG, BORDER_CYAN)
-    draw.text((350, 500), "TEACHER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw_card(draw, (100, 350, 550, 600), CARD_BG, BORDER_CYAN)
+    draw.text((325, 475), "TEACHER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
-    draw_card(draw, (150, 750, 550, 950), CARD_BG, BORDER_AMBER)
-    draw.text((350, 850), "OWNER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw_card(draw, (100, 750, 550, 1000), CARD_BG, BORDER_AMBER)
+    draw.text((325, 875), "OWNER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     # Right Entity
-    draw_card(draw, (1850, 575, 2250, 775), CARD_BG, BORDER_EMERALD)
-    draw.text((2050, 675), "CLOUD DB", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw_card(draw, (1850, 550, 2300, 800), CARD_BG, BORDER_EMERALD)
+    draw.text((2075, 675), "CLOUD DB", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     # Lines
-    draw.line([(550, 500), (830, 560)], fill=BORDER_CYAN, width=6)
-    draw.line([(550, 850), (830, 790)], fill=BORDER_AMBER, width=6)
-    draw.line([(1570, 675), (1850, 675)], fill=BORDER_EMERALD, width=6)
+    draw.line([(550, 475), (820, 550)], fill=BORDER_CYAN, width=10)
+    draw.line([(550, 875), (820, 800)], fill=BORDER_AMBER, width=10)
+    draw.line([(1600, 675), (1850, 675)], fill=BORDER_EMERALD, width=10)
 
     im.save(os.path.join(img_dir, "dfd_level0_diagram.png"), quality=100)
 
@@ -169,22 +170,22 @@ def generate_dfd_l1_diagram():
     im = Image.new("RGB", (2400, 1350), BG_COLOR)
     draw = ImageDraw.Draw(im)
 
-    draw.text((1200, 60), "DFD LEVEL 1", fill=TEXT_WHITE, font=font_title, anchor="mt")
-    draw.text((1200, 130), "Decomposed Modules", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
+    draw.text((1200, 40), "DFD LEVEL 1", fill=TEXT_WHITE, font=font_title, anchor="mt")
+    draw.text((1200, 160), "Decomposed Modules", fill=BORDER_CYAN, font=font_subtitle, anchor="mt")
 
     processes = [
-        (200, 300, 700, 500, "1.0 AUTHENTICATION", BORDER_CYAN),
-        (900, 300, 1500, 500, "2.0 STUDENT CRUD", BORDER_EMERALD),
-        (1700, 300, 2200, 500, "3.0 BATCH PROCESSING", BORDER_AMBER),
-        (550, 700, 1150, 900, "4.0 SETTINGS", BORDER_ROSE),
+        (150, 300, 750, 550, "1.0 AUTHENTICATION", BORDER_CYAN),
+        (850, 300, 1550, 550, "2.0 STUDENT CRUD", BORDER_EMERALD),
+        (1650, 300, 2250, 550, "3.0 BATCH PROCESSING", BORDER_AMBER),
+        (550, 650, 1150, 900, "4.0 SETTINGS", BORDER_ROSE),
     ]
 
     for x1, y1, x2, y2, title, color in processes:
         draw_card(draw, (x1, y1, x2, y2), CARD_BG, color)
         draw.text(((x1+x2)//2, (y1+y2)//2), title, fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
-    draw_card(draw, (200, 1050, 2200, 1200), CARD_BG, BORDER_INDIGO)
-    draw.text((1200, 1125), "CLOUD DATABASE STORES", fill=BORDER_INDIGO, font=font_card_h, anchor="mm")
+    draw_card(draw, (200, 1050, 2200, 1250), CARD_BG, BORDER_INDIGO)
+    draw.text((1200, 1150), "CLOUD DATABASE STORES", fill=BORDER_INDIGO, font=font_card_h, anchor="mm")
 
     im.save(os.path.join(img_dir, "dfd_level1_diagram.png"), quality=100)
 
@@ -195,27 +196,27 @@ def generate_usecase_diagram():
     im = Image.new("RGB", (2400, 1350), BG_COLOR)
     draw = ImageDraw.Draw(im)
 
-    draw.text((1200, 60), "USE CASE DIAGRAM", fill=TEXT_WHITE, font=font_title, anchor="mt")
+    draw.text((1200, 40), "USE CASE DIAGRAM", fill=TEXT_WHITE, font=font_title, anchor="mt")
 
     # Actors
-    draw_card(draw, (200, 350, 600, 550), CARD_BG, BORDER_CYAN)
-    draw.text((400, 450), "TEACHER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw_card(draw, (200, 300, 650, 550), CARD_BG, BORDER_CYAN)
+    draw.text((425, 425), "TEACHER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
-    draw_card(draw, (200, 800, 600, 1000), CARD_BG, BORDER_AMBER)
-    draw.text((400, 900), "OWNER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
+    draw_card(draw, (200, 800, 650, 1050), CARD_BG, BORDER_AMBER)
+    draw.text((425, 925), "OWNER", fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     # Use Cases
     cases = [
-        (900, 250, 1400, 400, "Manage Students", BORDER_CYAN),
-        (900, 450, 1400, 600, "CSV Batch Upload", BORDER_CYAN),
-        (900, 650, 1400, 800, "Manage Profile", BORDER_CYAN),
-        (1600, 750, 2100, 900, "Rotate Invite Key", BORDER_AMBER),
-        (1600, 950, 2100, 1100, "Supervise System", BORDER_AMBER),
+        (900, 200, 1500, 400, "Manage Students", BORDER_CYAN),
+        (900, 450, 1500, 650, "CSV Batch Upload", BORDER_CYAN),
+        (900, 700, 1500, 900, "Manage Profile", BORDER_CYAN),
+        (1600, 750, 2200, 950, "Rotate Invite Key", BORDER_AMBER),
+        (1600, 1000, 2200, 1200, "Supervise System", BORDER_AMBER),
     ]
 
     for x1, y1, x2, y2, title, outline in cases:
-        draw.rounded_rectangle((x1, y1, x2, y2), radius=50, fill=CARD_BG, outline=outline, width=5)
-        draw.text(((x1+x2)//2, (y1+y2)//2), title, fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
+        draw.rounded_rectangle((x1, y1, x2, y2), radius=50, fill=CARD_BG, outline=outline, width=8)
+        draw.text(((x1+x2)//2, (y1+y2)//2), title, fill=TEXT_WHITE, font=font_card_h, anchor="mm")
 
     im.save(os.path.join(img_dir, "usecase_diagram.png"), quality=100)
 
@@ -226,29 +227,29 @@ def generate_process_flow_diagram():
     im = Image.new("RGB", (2400, 1350), BG_COLOR)
     draw = ImageDraw.Draw(im)
 
-    draw.text((1200, 60), "PROCESS PIPELINES", fill=TEXT_WHITE, font=font_title, anchor="mt")
+    draw.text((1200, 40), "PROCESS PIPELINES", fill=TEXT_WHITE, font=font_title, anchor="mt")
 
     # Pipeline A
-    draw_card(draw, (200, 200, 1100, 1150), CARD_BG, BORDER_EMERALD)
-    draw.text((650, 270), "STUDENT CREATION", fill=BORDER_EMERALD, font=font_card_h, anchor="mm")
+    draw_card(draw, (150, 200, 1150, 1200), CARD_BG, BORDER_EMERALD)
+    draw.text((650, 280), "STUDENT CREATION", fill=BORDER_EMERALD, font=font_card_h, anchor="mm")
     
     steps_a = ["1. Form Submit", "2. Session Guard", "3. Validation (Age)", "4. Upload Avatar", "5. SQL Insert"]
-    y = 380
+    y = 400
     for s in steps_a:
-        draw.rounded_rectangle((300, y, 1000, y+100), radius=20, fill=(4, 120, 87))
-        draw.text((650, y+50), s, fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
-        y += 140
+        draw.rounded_rectangle((250, y, 1050, y+110), radius=20, fill=(4, 120, 87))
+        draw.text((650, y+55), s, fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
+        y += 150
 
     # Pipeline B
-    draw_card(draw, (1300, 200, 2200, 1150), CARD_BG, BORDER_CYAN)
-    draw.text((1750, 270), "AUTHENTICATION", fill=BORDER_CYAN, font=font_card_h, anchor="mm")
+    draw_card(draw, (1250, 200, 2250, 1200), CARD_BG, BORDER_CYAN)
+    draw.text((1750, 280), "AUTHENTICATION", fill=BORDER_CYAN, font=font_card_h, anchor="mm")
 
-    steps_b = ["1. Submit Login", "2. Rate Limiter", "3. DB Lookup", "4. Bcrypt Hash Match", "5. Session Cookie"]
-    y = 380
+    steps_b = ["1. Submit Login", "2. Rate Limiter", "3. DB Lookup", "4. Bcrypt Hash", "5. Session Cookie"]
+    y = 400
     for s in steps_b:
-        draw.rounded_rectangle((1400, y, 2100, y+100), radius=20, fill=(14, 116, 144))
-        draw.text((1750, y+50), s, fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
-        y += 140
+        draw.rounded_rectangle((1350, y, 2150, y+110), radius=20, fill=(14, 116, 144))
+        draw.text((1750, y+55), s, fill=TEXT_WHITE, font=font_body_bold, anchor="mm")
+        y += 150
 
     im.save(os.path.join(img_dir, "process_flow_diagram.png"), quality=100)
 

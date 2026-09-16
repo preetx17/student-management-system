@@ -142,39 +142,48 @@ def build_presentation():
         if os.path.exists(img_path):
             # Center large image
             slide.shapes.add_picture(img_path, Inches(0.8), Inches(1.8), Inches(11.73), Inches(5.2))
+        else:
+            # Placeholder box if image is missing
+            shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.8), Inches(11.73), Inches(5.2))
+            shape.fill.solid()
+            shape.fill.fore_color.rgb = MUTED
+            tf = shape.text_frame
+            tf.text = f"Please insert screenshot here:\n{image_filename}"
+            tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+            tf.paragraphs[0].font.size = Pt(30)
 
 
-    # ================== SLIDE 1 ==================
+    # ================== SLIDE 1: HERO ==================
     s1 = prs.slides.add_slide(blank_layout)
     set_bg(s1)
-    add_hero(s1, "Student Management System", "Cloud-Native, Secure, and Elegant.")
+    add_hero(s1, "Student Management System", "A Secure, Scalable, and Modern Platform")
 
-    # ================== SLIDE 2 ==================
+    # ================== SLIDE 2: THE PROBLEM ==================
     s2 = prs.slides.add_slide(blank_layout)
     set_bg(s2)
-    add_split(s2, "The Problem", "Why Upgrade?", "Legacy systems are holding institutions back.", "Limitations of the Past", [
-        "Data Loss: Paper registers and Excel files get corrupted.",
-        "Device Locked: Stuck on a single office PC.",
-        "No Security: Unrestricted access to private records.",
-        "Slow Workflow: Manual searches take minutes, not milliseconds."
+    add_split(s2, "The Old Way", "Why Upgrade?", "Legacy systems were holding operations back with fragmented data and slow UI.", "Key Limitations", [
+        "Vulnerable Data: Excel and paper logs lead to data loss and corruption.",
+        "Device Locked: No cloud access meant being stuck to one office PC.",
+        "Zero Role Security: Everyone had unrestricted access to all sensitive data.",
+        "Slow Manual Workflow: Searching and updating records was extremely tedious."
     ])
 
-    # ================== SLIDE 3 ==================
+    # ================== SLIDE 3: THE SOLUTION ==================
     s3 = prs.slides.add_slide(blank_layout)
     set_bg(s3)
-    add_split(s3, "The Solution", "A New Standard", "Automated, secure, and beautiful.", "The Modern Solution", [
-        "Cloud Sync: Instant real-time updates everywhere.",
-        "Role Security: Strict Owner vs. Teacher access.",
-        "Automation: 1-Click CSV bulk importing and exporting.",
-        "Universal UX: Flawless on smartphones and desktops."
+    add_split(s3, "The New Way", "A Modern Solution", "We built an automated, secure, and beautiful centralized platform.", "Major Upgrades", [
+        "Real-time Cloud Sync: Access records securely from any device.",
+        "Strict Role Hierarchies: Owner vs Teacher privileges ensure data safety.",
+        "Bulk Automation: 1-Click CSV Import and Export for hundreds of records.",
+        "Elegant SPA Design: Glassmorphism UI that feels premium and responsive."
     ], is_right=True)
 
-    # ================== SLIDE 4 ==================
+    # ================== SLIDE 4: ARCHITECTURE ==================
     s4 = prs.slides.add_slide(blank_layout)
     set_bg(s4)
     cat_box = s4.shapes.add_textbox(Inches(0.5), Inches(0.8), Inches(12.33), Inches(0.4))
     p_c = cat_box.text_frame.paragraphs[0]
-    p_c.text = "ARCHITECTURE"
+    p_c.text = "TECH STACK"
     p_c.font.size = Pt(14)
     p_c.font.bold = True
     p_c.font.color.rgb = PRIMARY
@@ -182,96 +191,97 @@ def build_presentation():
 
     t_box = s4.shapes.add_textbox(Inches(0.5), Inches(1.2), Inches(12.33), Inches(0.8))
     p = t_box.text_frame.paragraphs[0]
-    p.text = "The Technology Stack"
+    p.text = "Under The Hood"
     p.font.size = Pt(40)
     p.font.bold = True
     p.font.color.rgb = WHITE
     p.alignment = PP_ALIGN.CENTER
 
-    add_card(s4, Inches(0.5), Inches(2.8), Inches(2.8), Inches(3.5), "Frontend", ["HTML5", "CSS3 Glassmorphism", "Vanilla JS for speed"], font_size=16)
-    add_card(s4, Inches(3.6), Inches(2.8), Inches(2.8), Inches(3.5), "Backend", ["Node.js", "Express 5 API"], font_size=16)
-    add_card(s4, Inches(6.7), Inches(2.8), Inches(2.8), Inches(3.5), "Database", ["TiDB Cloud", "Serverless MySQL"], font_size=16)
-    add_card(s4, Inches(9.8), Inches(2.8), Inches(2.8), Inches(3.5), "Hosting", ["Render CI/CD", "Zero-downtime deploys"], font_size=16)
+    add_card(s4, Inches(0.5), Inches(2.8), Inches(2.8), Inches(4.2), "Frontend", ["HTML5 & CSS3 Modules", "Vanilla JS for lightning speed", "Premium Glassmorphism"], font_size=16)
+    add_card(s4, Inches(3.6), Inches(2.8), Inches(2.8), Inches(4.2), "Backend", ["Node.js Environment", "Express 5 API Router", "Stateless Session Management"], font_size=16)
+    add_card(s4, Inches(6.7), Inches(2.8), Inches(2.8), Inches(4.2), "Database", ["Serverless MySQL Engine", "Bcrypt Hash Security", "Normalized Tables"], font_size=16)
+    add_card(s4, Inches(9.8), Inches(2.8), Inches(2.8), Inches(4.2), "Deployment", ["Automated CI/CD Pipeline", "Zero-downtime Rollouts", "Environment Secrets"], font_size=16)
 
-    # ================== SLIDE 5 ==================
+    # ================== SLIDE 5: ERD ==================
     s5 = prs.slides.add_slide(blank_layout)
     set_bg(s5)
-    add_full_image_slide(s5, "Entity-Relationship Diagram", "DATABASE DESIGN", "er_diagram.png")
+    add_full_image_slide(s5, "Database Entities & Relationships", "DATABASE", "er_diagram.png")
 
-    # ================== SLIDE 6 ==================
+    # ================== SLIDE 6: DFD L0 ==================
     s6 = prs.slides.add_slide(blank_layout)
     set_bg(s6)
+    add_full_image_slide(s6, "System Boundaries (Context)", "DFD 0", "dfd_level0_diagram.png")
+
+    # ================== SLIDE 7: DFD L1 ==================
+    s7 = prs.slides.add_slide(blank_layout)
+    set_bg(s7)
+    add_full_image_slide(s7, "Core Processes & Decomposed Modules", "DFD 1", "dfd_level1_diagram.png")
+
+    # ================== SLIDE 8: OLD UI (Middle of Presentation) ==================
+    s8 = prs.slides.add_slide(blank_layout)
+    set_bg(s8)
+    add_full_image_slide(s8, "The Previous Dashboard UI", "BEFORE EVOLUTION", "before_dashboard.png")
     
-    cat_box = s6.shapes.add_textbox(Inches(0.8), Inches(0.8), Inches(11.7), Inches(0.4))
+    # ================== SLIDE 9: OLD UI 2 (Middle of Presentation) ==================
+    s9 = prs.slides.add_slide(blank_layout)
+    set_bg(s9)
+    add_full_image_slide(s9, "Previous Form Inputs & Tables", "BEFORE EVOLUTION", "before_forms.png")
+
+    # ================== SLIDE 10: NEW UI HIGHLIGHTS ==================
+    s10 = prs.slides.add_slide(blank_layout)
+    set_bg(s10)
+    
+    cat_box = s10.shapes.add_textbox(Inches(0.8), Inches(0.8), Inches(11.7), Inches(0.4))
     p_c = cat_box.text_frame.paragraphs[0]
-    p_c.text = "SCHEMA DETAILS"
+    p_c.text = "THE TRANSFORMATION"
     p_c.font.size = Pt(14)
     p_c.font.bold = True
     p_c.font.color.rgb = PRIMARY
     
-    t_box = s6.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(0.8))
+    t_box = s10.shapes.add_textbox(Inches(0.8), Inches(1.2), Inches(11.7), Inches(0.8))
     p = t_box.text_frame.paragraphs[0]
-    p.text = "Database Highlights"
+    p.text = "What Did We Actually Change?"
     p.font.size = Pt(40)
     p.font.bold = True
     p.font.color.rgb = WHITE
 
-    add_card(s6, Inches(0.8), Inches(2.8), Inches(3.6), Inches(3.0), "Teachers Table", ["Stores Bcrypt hashes", "Tracks assigned courses", "Manages avatars"], font_size=16)
-    add_card(s6, Inches(4.8), Inches(2.8), Inches(3.6), Inches(3.0), "Students Table", ["Strict age bounds (16-25)", "Unique emails", "1:N Teacher link"], font_size=16)
-    add_card(s6, Inches(8.8), Inches(2.8), Inches(3.6), Inches(3.0), "Settings Table", ["Governs Invite Code", "Super Admin access only"], font_size=16)
+    add_card(s10, Inches(0.8), Inches(2.8), Inches(3.6), Inches(4.0), "Single Page App", ["Complete rewrite to remove page reloads.", "Provides an 'App-like' instant feel.", "Dynamic DOM manipulation."], font_size=16)
+    add_card(s10, Inches(4.8), Inches(2.8), Inches(3.6), Inches(4.0), "Integrated Views", ["Created unified Teacher and Student rosters.", "Advanced course filtering added.", "Clean, modern data tables."], font_size=16)
+    add_card(s10, Inches(8.8), Inches(2.8), Inches(3.6), Inches(4.0), "Quick Modals", ["Add/Edit records without leaving the page.", "Real-time visual toast notifications.", "Responsive on all screen sizes."], font_size=16)
 
-    # ================== SLIDE 7 ==================
-    s7 = prs.slides.add_slide(blank_layout)
-    set_bg(s7)
-    add_full_image_slide(s7, "DFD Level 0: Boundaries", "SYSTEM CONTEXT", "dfd_level0_diagram.png")
-
-    # ================== SLIDE 8 ==================
-    s8 = prs.slides.add_slide(blank_layout)
-    set_bg(s8)
-    add_full_image_slide(s8, "DFD Level 1: Modules", "SYSTEM PROCESSES", "dfd_level1_diagram.png")
-
-    # ================== SLIDE 9 ==================
-    s9 = prs.slides.add_slide(blank_layout)
-    set_bg(s9)
-    add_split(s9, "Security", "Bulletproof Defense", "Enterprise-grade protection across all layers.", "Core Defenses", [
-        "Cryptography: Bcrypt hashing prevents reverse-engineering.",
-        "Network Guards: Strict IP rate limiting blocks brute-force.",
-        "Sanitization: Malicious SQL payloads neutralized instantly."
-    ])
-
-    # ================== SLIDE 10 ==================
-    s10 = prs.slides.add_slide(blank_layout)
-    set_bg(s10)
-    add_full_image_slide(s10, "Process Logic Pipelines", "WORKFLOWS", "process_flow_diagram.png")
-
-    # ================== SLIDE 11 ==================
+    # ================== SLIDE 11: SECURITY ==================
     s11 = prs.slides.add_slide(blank_layout)
     set_bg(s11)
-    add_full_image_slide(s11, "Use Case Diagram", "PRIVILEGES", "usecase_diagram.png")
+    add_split(s11, "Security", "Rock Solid Defense", "Enterprise-grade protection was built into every layer.", "Defense Mechanisms", [
+        "Cryptographic Hashing: Bcrypt prevents reverse-engineering of passwords.",
+        "Network Guards: Session tokens and IP rate limiting block brute-force attacks.",
+        "Data Sanitization: Malicious SQL payloads are neutralized instantly via prepared statements."
+    ])
 
-    # ================== SLIDE 12 ==================
+    # ================== SLIDE 12: WORKFLOWS ==================
     s12 = prs.slides.add_slide(blank_layout)
     set_bg(s12)
-    add_split(s12, "Verification", "Quality Assurance", "Ensuring flawless execution.", "Testing Strategy", [
-        "Automated: Scripts validate REST endpoints & DB state.",
-        "Boundary: Confirmed rejection of invalid ages.",
-        "Uniqueness: 409 Conflict handled gracefully."
-    ], is_right=True)
+    add_full_image_slide(s12, "Process Logic & Validations", "WORKFLOWS", "process_flow_diagram.png")
 
-    # ================== SLIDE 13 ==================
+    # ================== SLIDE 13: USE CASE ==================
     s13 = prs.slides.add_slide(blank_layout)
     set_bg(s13)
-    add_hero(s13, "Built for the Future", "A massive leap to a secure, automated, scalable platform.", "SUMMARY")
+    add_full_image_slide(s13, "Actor Privileges & Access", "USE CASE", "usecase_diagram.png")
 
-    # ================== SLIDE 14 ==================
+    # ================== SLIDE 14: SUMMARY ==================
     s14 = prs.slides.add_slide(blank_layout)
     set_bg(s14)
-    add_hero(s14, "Thank You", "Open for Questions & Discussion", "Q & A")
+    add_hero(s14, "Built for the Future", "A massive leap to a secure, automated, scalable platform.", "SUMMARY")
+
+    # ================== SLIDE 15: Q&A ==================
+    s15 = prs.slides.add_slide(blank_layout)
+    set_bg(s15)
+    add_hero(s15, "Thank You", "Open for Questions & Discussion", "Q & A")
 
     # Save
     try:
-        prs.save("Student_Management_System_Presentation_v2.pptx")
-        print("Successfully saved 14-slide minimalist presentation.")
+        prs.save("Student_Management_System_Presentation_v4.pptx")
+        print("Successfully saved presentation v4.")
     except Exception as e:
         print(f"Error saving: {e}")
 
